@@ -40,7 +40,7 @@ def plotting_demo():
     # this button is not connected to any other logic, it just causes a plain
     # rerun.
     st.button("Re-run")
-
+    
 
 st.set_page_config(page_title="Plotting Demo", page_icon="📈")
 st.markdown("# Plotting Demo")
