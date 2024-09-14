@@ -218,35 +218,36 @@ def grcut():
     if not os.path.exists('images'):
       os.makedirs('images')
     imgg = Image.open(img)
-    imgg.save('images/'+img.name)
-    copy = np.asarray(imgg)
-    
-    drawling_mode = st.sidebar.selectbox("Drawing mode", ("rect", "transform", "point"))
-    real_time_update = st.sidebar.checkbox("Real-time update", True)
-    if drawling_mode == "point":
-      point_display_radius = st.sidebar.slider("Point display radius", 1, 25, 3)
-    canvas_rs = st_canvas(height=imgg.height, width=imgg.width,point_display_radius=point_display_radius if drawling_mode=='point' else None,display_toolbar=True,fill_color='',stroke_width=2, update_streamlit=True, background_image=imgg, drawing_mode=drawling_mode, stroke_color="red")
-    form = st.form(key='form')
-    # print(canvas_rs)
-    rec = canvas_rs.json_data['objects']
-    # for i in rec:
-    #   if i['type'] == 'rect':
-    #     x = i['left']
-    #     y = i['top']
-    #     w = i['width']
-    #     h = i['height']
-    #     cv.rectangle(copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
-    max_one_rec = 0
-    for i in range(len(rec)):
-      if rec[i]['type'] == 'rect':
-        max_one_rec += 1
-        if max_one_rec > 1:
-          st.warning("Only one rectangle is allowed")
-          rec.pop(i)
-    print(rec)
-    st.image(copy, caption="Edit")
-    submit = form.form_submit_button('Submit')
-    # st.write(img.getvalue())
-    # App().run(img.name)
-    # cv.destroyAllWindows()
+    if imgg is not None:
+      imgg.save('images/'+img.name)
+      copy = np.asarray(imgg)
+      
+      drawling_mode = st.sidebar.selectbox("Drawing mode", ("rect", "transform", "point"))
+      real_time_update = st.sidebar.checkbox("Real-time update", True)
+      if drawling_mode == "point":
+        point_display_radius = st.sidebar.slider("Point display radius", 1, 25, 3)
+      canvas_rs = st_canvas(height=imgg.height, width=imgg.width,point_display_radius=point_display_radius if drawling_mode=='point' else None,display_toolbar=True,fill_color='',stroke_width=2, update_streamlit=True, background_image=imgg, drawing_mode=drawling_mode, stroke_color="red")
+      form = st.form(key='form')
+      # print(canvas_rs)
+      rec = canvas_rs.json_data['objects']
+      # for i in rec:
+      #   if i['type'] == 'rect':
+      #     x = i['left']
+      #     y = i['top']
+      #     w = i['width']
+      #     h = i['height']
+      #     cv.rectangle(copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
+      max_one_rec = 0
+      for i in range(len(rec)):
+        if rec[i]['type'] == 'rect':
+          max_one_rec += 1
+          if max_one_rec > 1:
+            st.warning("Only one rectangle is allowed")
+            rec.pop(i)
+      print(rec)
+      st.image(copy, caption="Edit")
+      submit = form.form_submit_button('Submit')
+      # st.write(img.getvalue())
+      # App().run(img.name)
+      # cv.destroyAllWindows()
 grcut()
