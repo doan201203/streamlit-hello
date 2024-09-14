@@ -210,6 +210,23 @@ class App():
             img = cv.bitwise_and(self.copy, self.copy, mask = self.alpha)
             self.output = self.crop_to_alpha(img)
 
+def crop_to_alpha(alpha, img):
+  x, y = alpha.nonzero()
+  if len(x) == 0 or len(y) == 0: return img
+  return img[np.min(x) : np.max(x), np.min(y) : np.max(y)]
+
+def algo(copy, rect):
+  bgdmodel = np.zeros((1, 65), np.float64)
+  fgdmodel = np.zeros((1, 65), np.float64)
+  mask = np.zeros(copy.shape[:2], dtype = np.uint8)
+  cv.grabCut(copy, mask, rect, bgdmodel, fgdmodel, 3, cv.GC_INIT_WITH_RECT)
+  # alpha = np.where((mask == 1) + (mask == 3), 255,
+                                  # 0).astype('uint8')
+  # im = cv.bitwise_and(copy, copy, mask=alpha)
+  # return crop_to_alpha(alpha, copy)
+  mask2 = np.where((mask==2) | (mask==0), 0, 1).astype('uint8')
+  copy = copy*mask2[:,:,np.newaxis]
+  return copy
 
 def grcut():
   img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
@@ -240,18 +257,23 @@ def grcut():
         stroke_color="red"
       )
       
+      #
+      #
       form = st.form(key='form')
       print(canvas_rs)
       rec = []
-      if canvas_rs.json_data is not None and 'objects' in canvas_rs.json_data:
+      if canvas_rs.json_data is not None:
         rec = canvas_rs.json_data['objects']
-      # for i in rec:
-      #   if i['type'] == 'rect':
-      #     x = i['left']
-      #     y = i['top']
-      #     w = i['width']
-      #     h = i['height']
-      #     cv.rectangle(copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
+      
+      recc = ()
+      for i in rec:
+        if i['type'] == 'rect':
+          x = i['left']
+          y = i['top']
+          w = i['width']
+          h = i['height']
+          recc = (x, y, x+ w, y + h)
+          # cv.rectangle(copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
       max_one_rec = 0
       for i in range(len(rec)):
         if rec[i]['type'] == 'rect':
@@ -260,8 +282,10 @@ def grcut():
             st.warning("Only one rectangle is allowed")
             rec.pop(i)
       print(rec)
-      st.image(copy, caption="Edit")
       submit = form.form_submit_button('Submit')
+      if submit:
+        st.image(algo(copy, recc), caption="Edited")
+      
       # st.write(img.getvalue())
       # App().run(img.name)
       # cv.destroyAllWindows()
