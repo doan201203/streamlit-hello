@@ -2,6 +2,9 @@ from __future__ import print_function
 import streamlit as st
 import cv2 as cv
 import os
+from PIL import Image 
+from streamlit_drawable_canvas import st_canvas
+
 st.set_page_config(page_title="Cutting")
 st.markdown("# Cutting")
 st.sidebar.header("Cutting")
@@ -165,7 +168,7 @@ class App():
 
     def load(self, nameFile):
         self.outfile = 'grabcut.png'
-        filename = nameFile
+        filename = os.path.join('/home/truongdoan/dev/openCV/streamlit-hello', nameFile)
         # print()
         self.input    = cv.imread(filename)
         self.copy   = self.input.copy()         
@@ -210,8 +213,35 @@ class App():
 
 def grcut():
   img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
+  
   if img is not None:
-    print(img.name)
+    imgg = Image.open(img)
+    copy = np.asarray(imgg)
+    drawling_mode = st.sidebar.selectbox("Drawing mode", ("rect", "transform", "point"))
+    real_time_update = st.sidebar.checkbox("Real-time update", True)
+    if drawling_mode == "point":
+      point_display_radius = st.sidebar.slider("Point display radius", 1, 25, 3)
+    canvas_rs = st_canvas(height=imgg.height, width=imgg.width,point_display_radius=point_display_radius if drawling_mode=='point' else None,display_toolbar=True,fill_color='',stroke_width=2, update_streamlit=True, background_image=imgg, drawing_mode=drawling_mode, stroke_color="red")
+    form = st.form(key='form')
+    # print(canvas_rs)
+    rec = canvas_rs.json_data['objects']
+    # for i in rec:
+    #   if i['type'] == 'rect':
+    #     x = i['left']
+    #     y = i['top']
+    #     w = i['width']
+    #     h = i['height']
+    #     cv.rectangle(copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
+    max_one_rec = 0
+    for i in range(len(rec)):
+      if rec[i]['type'] == 'rect':
+        max_one_rec += 1
+        if max_one_rec > 1:
+          st.warning("Only one rectangle is allowed")
+          rec.pop(i)
+    print(rec)
+    st.image(copy, caption="Edit")
+    submit = form.form_submit_button('Submit')
     print(os.getcwd())
     # st.write(img.getvalue())
     # App().run(img.name)
