@@ -242,7 +242,6 @@ def grcut():
     print(rec)
     st.image(copy, caption="Edit")
     submit = form.form_submit_button('Submit')
-    print(os.getcwd())
     # st.write(img.getvalue())
     # App().run(img.name)
     # cv.destroyAllWindows()
