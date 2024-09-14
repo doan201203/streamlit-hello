@@ -213,7 +213,7 @@ class App():
 
 def grcut():
   img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
-  
+  print(os.getcwd())
   if img is not None:
     if not os.path.exists('images'):
       os.makedirs('images')
