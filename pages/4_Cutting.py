@@ -239,9 +239,9 @@ def grcut():
         stroke_color="red"
       )
       form = st.form(key='form')
-      # print(canvas_rs)
-      res = []
-      if "objects" in canvas_rs.json_data:
+      print(canvas_rs)
+      rec = []
+      if 'objects' in canvas_rs.json_data:
         rec = canvas_rs.json_data['objects']
       # for i in rec:
       #   if i['type'] == 'rect':
