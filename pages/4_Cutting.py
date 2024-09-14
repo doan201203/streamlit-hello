@@ -226,7 +226,18 @@ def grcut():
       real_time_update = st.sidebar.checkbox("Real-time update", True)
       if drawling_mode == "point":
         point_display_radius = st.sidebar.slider("Point display radius", 1, 25, 3)
-      canvas_rs = st_canvas(height=imgg.height, width=imgg.width,point_display_radius=point_display_radius if drawling_mode=='point' else None,display_toolbar=True,fill_color='',stroke_width=2, update_streamlit=True, background_image=imgg, drawing_mode=drawling_mode, stroke_color="red")
+      canvas_rs = st_canvas(
+        update_streamlit=real_time_update,
+        height=imgg.height,
+        width=imgg.width, 
+        point_display_radius=point_display_radius if drawling_mode=='point' else None,
+        display_toolbar=True,
+        fill_color='',
+        stroke_width=2,
+        background_image=Image.open('images/'+img.name),
+        drawing_mode=drawling_mode,
+        stroke_color="red"
+      )
       form = st.form(key='form')
       # print(canvas_rs)
       rec = canvas_rs.json_data['objects']
