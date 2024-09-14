@@ -5,3 +5,5 @@ pydeck
 streamlit
 opencv-python-headless
 streamlit-drawable-canvas
+svgpathtools
+svgwrite
