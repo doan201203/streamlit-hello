@@ -240,7 +240,9 @@ def grcut():
       )
       form = st.form(key='form')
       # print(canvas_rs)
-      rec = canvas_rs.json_data['objects']
+      res = []
+      if canvas_rs.json_data.has_key('objects'):
+        rec = canvas_rs.json_data['objects']
       # for i in rec:
       #   if i['type'] == 'rect':
       #     x = i['left']
