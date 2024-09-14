@@ -215,8 +215,12 @@ def grcut():
   img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
   
   if img is not None:
+    if not os.path.exists('images'):
+      os.makedirs('images')
     imgg = Image.open(img)
+    imgg.save('images/'+img.name)
     copy = np.asarray(imgg)
+    
     drawling_mode = st.sidebar.selectbox("Drawing mode", ("rect", "transform", "point"))
     real_time_update = st.sidebar.checkbox("Real-time update", True)
     if drawling_mode == "point":
