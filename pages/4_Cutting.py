@@ -241,7 +241,7 @@ def grcut():
       form = st.form(key='form')
       # print(canvas_rs)
       res = []
-      if canvas_rs.json_data.has_key('objects'):
+      if canvas_rs.json_data.keys('objects') is not None:
         rec = canvas_rs.json_data['objects']
       # for i in rec:
       #   if i['type'] == 'rect':
