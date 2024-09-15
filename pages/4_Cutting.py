@@ -210,16 +210,25 @@ class App():
             img = cv.bitwise_and(self.copy, self.copy, mask = self.alpha)
             self.output = self.crop_to_alpha(img)
 
+
 def crop_to_alpha(alpha, img):
   x, y = alpha.nonzero()
   if len(x) == 0 or len(y) == 0: return img
   return img[np.min(x) : np.max(x), np.min(y) : np.max(y)]
 
-def algo(copy, rect):
+def algo(copy, rect, mask, mo):
+  if mo == 0:
+    mask_type = cv.GC_INIT_WITH_RECT
+  else:
+    mask_type = cv.GC_INIT_WITH_MASK
   bgdmodel = np.zeros((1, 65), np.float64)
   fgdmodel = np.zeros((1, 65), np.float64)
-  mask = np.zeros(copy.shape[:2], dtype = np.uint8)
-  cv.grabCut(copy, mask, rect, bgdmodel, fgdmodel, 3, cv.GC_INIT_WITH_RECT)
+  # mask = np.zeros(copy.shape[:2], dtype = np.uint8)
+  cv.grabCut(copy, mask, rect, bgdmodel, fgdmodel, 1, mask_type)
+  alpha = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
+  img = cv.bitwise_and(copy, copy, mask=alpha)
+  return crop_to_alpha(alpha, img)
+
   # alpha = np.where((mask == 1) + (mask == 3), 255,
                                   # 0).astype('uint8')
   # im = cv.bitwise_and(copy, copy, mask=alpha)
@@ -228,40 +237,65 @@ def algo(copy, rect):
   copy = copy*mask2[:,:,np.newaxis]
   return copy
 
+BLUE  = [255, 0, 0]       # rectangle color
+RED   = [0, 0, 255]       # PR BG
+GREEN = [0, 255, 0]       # PR FG
+BLACK = [0, 0, 0]         # sure BG
+WHITE = [255, 255, 255]   # sure FG
+
+DRAW_BG    = {'color' : BLACK, 'val' : 0}
+DRAW_FG    = {'color' : WHITE, 'val' : 1}
+DRAW_PR_FG = {'color' : GREEN, 'val' : 3}
+DRAW_PR_BG = {'color' : RED,   'val' : 2}
+DRAWING_MODE = ['Draw a rectangle', 'Draw touchup curves']
+CONVERSION = {
+  'Draw a rectangle': 'rect',
+  'Draw touchup curves': 'point'
+}
+
+thickness  = 3
+
 def grcut():
+  #doc anh tu nguoi dung
   img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
-  print(os.getcwd())
   if img is not None:
+    #luu anh
     if not os.path.exists('images'):
       os.makedirs('images')
     imgg = Image.open(img)
     imgg.save('images/'+img.name)
-    ori_imt = cv.imread('images/'+img.name)
+    ori_img = cv.imread('images/'+img.name)
+    
     if imgg is not None:
       copy = np.asarray(imgg)
-      
-      drawling_mode = st.sidebar.selectbox("Drawing mode", ("rect", "transform", "point"))
-      real_time_update = st.sidebar.checkbox("Real-time update", True)
-      if drawling_mode == "point":
-        point_display_radius = st.sidebar.slider("Point display radius", 1, 25, 3)
-      
+      cmp = np.asarray(imgg)
+      mask = np.zeros(copy.shape[:2], dtype = np.uint8)
+      #hien thi mode ve anh
+      drawling_mode = st.sidebar.selectbox("Drawing mode", DRAWING_MODE)
+      stroke_color = "red"
+      if drawling_mode == DRAWING_MODE[1]:
+        drawling_mode2 = st.sidebar.selectbox("Drawing mode", ('Select areas of sure background', 'Select areas of sure foreground'))
+        if drawling_mode2 == 'Select areas of sure background':
+          stroke_color = "black"
+        else:
+          stroke_color = "green"
       canvas_rs = st_canvas(
         background_image=Image.open(img),
-        update_streamlit=real_time_update,
+        update_streamlit=True,
         height=imgg.height,
         width=imgg.width, 
-        point_display_radius=point_display_radius if drawling_mode=='point' else None,
         display_toolbar=True,
-        fill_color='',
+        fill_color='' if drawling_mode == DRAWING_MODE[0] else 'black' if drawling_mode2 == 'Select areas of sure background' else 'green',
         stroke_width=2,
-        drawing_mode=drawling_mode,
-        stroke_color="red"
+        drawing_mode=CONVERSION[drawling_mode],
+        stroke_color=stroke_color,
+        key="my_canvas"
       )
       
       #
       #
       form = st.form(key='form')
-      print(canvas_rs)
+      # print(canvas_rs)
       rec = []
       if canvas_rs.json_data is not None:
         rec = canvas_rs.json_data['objects']
@@ -273,19 +307,41 @@ def grcut():
           y = i['top']
           w = i['width']
           h = i['height']
-          recc = (x, y, x+ w, y + h)
-          # cv.rectangle(copy, (x, y), (x+w, y+h), (255, 0, 0), 2)
+          recc = (min(x, x + w), min(y, y + h), w, h)
+          cv.rectangle(cmp, (x, y), (x+w, y+h), (255, 255, 255), 2)
+      
       max_one_rec = 0
+      fa = 0
+      
       for i in range(len(rec)):
         if rec[i]['type'] == 'rect':
           max_one_rec += 1
           if max_one_rec > 1:
             st.warning("Only one rectangle is allowed")
             rec.pop(i)
-      print(rec)
+        if rec[i]['type'] == 'circle':
+          fa = 1
+          x = rec[i]['left']
+          y = rec[i]['top']
+          r = rec[i]['radius']
+          color = rec[i]['fill']
+          if color == 'black':
+            color = 0
+          else:
+            color = 1
+          cv.circle(mask, (x, y), r, color, -1)
+      
       submit = form.form_submit_button('Submit')
       if submit:
-        st.image(algo(copy, recc), caption="Edited")
+        print(recc)
+        if max_one_rec > 0:
+          print(fa, np.where(mask.nonzero()))
+          # st.image(cmp, caption="Edited")
+          st.image(algo(copy, recc, mask, fa), caption="Edited")
+        else:
+          st.warning("Please draw a rectangle")
+        
+        # st.image(algo(copy, recc), caption="Edited")
       
       # st.write(img.getvalue())
       # App().run(img.name)
