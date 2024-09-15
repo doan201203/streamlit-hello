@@ -235,8 +235,9 @@ def grcut():
     if not os.path.exists('images'):
       os.makedirs('images')
     imgg = Image.open(img)
+    imgg.save('images/'+img.name)
+    ori_imt = cv.imread('images/'+img.name)
     if imgg is not None:
-      imgg.save('images/'+img.name)
       copy = np.asarray(imgg)
       
       drawling_mode = st.sidebar.selectbox("Drawing mode", ("rect", "transform", "point"))
@@ -245,7 +246,7 @@ def grcut():
         point_display_radius = st.sidebar.slider("Point display radius", 1, 25, 3)
       
       canvas_rs = st_canvas(
-        background_image=imgg,
+        background_image=Image.open(img),
         update_streamlit=real_time_update,
         height=imgg.height,
         width=imgg.width, 
