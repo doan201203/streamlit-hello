@@ -21,14 +21,6 @@ def crop_to_alpha(alpha, img):
   if len(x) == 0 or len(y) == 0: return img
   return img[np.min(x) : np.max(x), np.min(y) : np.max(y)]
 
-  # alpha = np.where((mask == 1) + (mask == 3), 255,
-                                  # 0).astype('uint8')
-  # im = cv.bitwise_and(copy, copy, mask=alpha)
-  # return crop_to_alpha(alpha, copy)
-  mask2 = np.where((mask==2) | (mask==0), 0, 1).astype('uint8')
-  copy = copy*mask2[:,:,np.newaxis]
-  return copy
-
 BLUE  = [255, 0, 0]       # rectangle color
 RED   = [0, 0, 255]       # PR BG
 GREEN = [0, 255, 0]       # PR FG
@@ -54,22 +46,24 @@ def grcut():
     #luu anh
     if not os.path.exists('images'):
       os.makedirs('images')
-    imgg = Image.open(img)
-    imgg.save('images/'+img.name)
     ori_img = cv.imread('images/'+img.name)
+    tmp = cv.cvtColor(ori_img, cv.COLOR_BGR2RGB)
+    imgg = Image.fromarray(tmp)
+    imgg.save('images/'+img.name)
     
     if imgg is not None:
-      copy = np.asarray(imgg)
-      mask = np.zeros(copy.shape[:2], dtype = np.uint8)
+      copy = ori_img.copy()
+      mask2 = np.zeros(copy.shape[:2], dtype = np.uint8)
       #hien thi mode ve anh
       drawling_mode = st.sidebar.selectbox("Drawing mode", DRAWING_MODE)
       stroke_color = "red"
       if drawling_mode == DRAWING_MODE[1]:
-        drawling_mode2 = st.sidebar.selectbox("Drawing mode", ('Select areas of sure background', 'Select areas of sure foreground'))
+        drawling_mode2 = st.sidebar.selectbox("Drawing mode", ( 'Select areas of sure foreground', 'Select areas of sure background'))
         if drawling_mode2 == 'Select areas of sure background':
           stroke_color = "black"
         else:
           stroke_color = "green"
+        
       canvas_rs = st_canvas(
         background_image=Image.open(img),
         update_streamlit=True,
@@ -109,7 +103,6 @@ def grcut():
           max_one_rec += 1
           if max_one_rec > 1:
             st.warning("Only one rectangle is allowed")
-            rec.pop(i)
         if rec[i]['type'] == 'circle':
           fa = 1
           x = rec[i]['left']
@@ -117,33 +110,32 @@ def grcut():
           r = rec[i]['radius']
           color = rec[i]['fill']
           if color == 'black':
-            color = 0
+            co = cv.GC_BGD
           else:
-            color = 1
-          cv.circle(mask, (x, y), r, color, -1)
+            co = cv.GC_FGD
+          cv.circle(mask2, (x, y), r, co, -1)
       
       submit = form.form_submit_button('Submit')
       if submit:
+        print(max_one_rec, recc, fa, copy.shape)
         if max_one_rec > 0:
           if fa == 0:
             mask_type = cv.GC_INIT_WITH_RECT
           else:
+            recc = (1, 1, copy.shape[0], copy.shape[1])
             mask_type = cv.GC_INIT_WITH_MASK
           bgdmodel = np.zeros((1, 65), np.float64)
           fgdmodel = np.zeros((1, 65), np.float64)
           # mask = np.zeros(copy.shape[:2], dtype = np.uint8)
-          cv.grabCut(copy, mask, recc, bgdmodel, fgdmodel, 1, mask_type)
-          alpha = np.where((mask == 1) + (mask == 3), 255, 0).astype('uint8')
+          mask2[mask2 == 0] = cv.GC_BGD
+          mask2[mask2 > 0] = cv.GC_PR_BGD
+          
+          cv.grabCut(copy, mask2, recc, bgdmodel, fgdmodel, 1, mask_type)
+          alpha = np.where((mask2 == cv.GC_BGD) | (mask2==cv.GC_PR_BGD), 0, 255).astype('uint8')
           img_tmp = cv.bitwise_and(copy, copy, mask=alpha)
-          # print(fa, np.where(mask.nonzero()))
-          # st.image(cmp, caption="Edited")
-          st.image(crop_to_alpha(alpha, img_tmp), caption="Edited")
+          # print(mask)
+          # st.image(mask, caption="Edited")
+          st.image(cv.cvtColor(crop_to_alpha(alpha, img_tmp), cv.COLOR_RGB2BGR), caption="Edited")
         else:
           st.warning("Please draw a rectangle")
-        
-        # st.image(algo(copy, recc), caption="Edited")
-      
-      # st.write(img.getvalue())
-      # App().run(img.name)
-      # cv.destroyAllWindows()
 grcut()
