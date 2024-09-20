@@ -65,7 +65,7 @@ def grcut():
           stroke_color = "green"
         
       canvas_rs = st_canvas(
-        background_image=Image.open(img),
+        background_image=imgg,
         update_streamlit=True,
         height=imgg.height,
         width=imgg.width, 
@@ -86,38 +86,38 @@ def grcut():
         rec = canvas_rs.json_data['objects']
       
       recc = ()
-      for i in rec:
-        if i['type'] == 'rect':
-          x = i['left']
-          y = i['top']
-          w = i['width']
-          h = i['height']
-          recc = (min(x, x + w), min(y, y + h), w, h)
-          # cv.rectangle(cmp, (x, y), (x+w, y+h), (255, 255, 255), 2)
-      
-      max_one_rec = 0
       fa = 0
-      
+      max_one_rec = 0
       for i in range(len(rec)):
         if rec[i]['type'] == 'rect':
           max_one_rec += 1
-          if max_one_rec > 1:
-            st.warning("Only one rectangle is allowed")
+          x = rec[i]['left']
+          y = rec[i]['top']
+          w = rec[i]['width']
+          h = rec[i]['height']
+          recc = (min(x, x + w), min(y, y + h), w, h)
         if rec[i]['type'] == 'circle':
           fa = 1
+          # print(rec[i])
           x = rec[i]['left']
           y = rec[i]['top']
           r = rec[i]['radius']
+          ag = rec[i]['angle']
+          cenx = x + r * np.cos(ag * np.pi / 180)
+          ceny = y + r * np.sin(ag * np.pi / 180)
+          print(cenx, ceny)
           color = rec[i]['fill']
           if color == 'black':
             co = cv.GC_BGD
           else:
             co = cv.GC_FGD
-          cv.circle(mask2, (x, y), r, co, -1)
-      
+          cv.circle(mask2, (int(cenx), int(ceny)), r, co, -1)
+        
+      if max_one_rec > 1:
+        st.warning("Only one rectangle is allowed")
       submit = form.form_submit_button('Submit')
       if submit:
-        print(max_one_rec, recc, fa, copy.shape)
+        # print(max_one_rec, recc, fa, copy.shape)
         if max_one_rec > 0:
           if fa == 0:
             mask_type = cv.GC_INIT_WITH_RECT
