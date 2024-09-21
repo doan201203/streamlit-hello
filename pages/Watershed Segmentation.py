@@ -69,7 +69,7 @@ st.markdown(
 image_result = {}
 ave_dice = {}
 
-# @st.cache_data(show_spinner=False)
+#@st.cache_data(show_spinner=False)
 def train_phase(save_rs):
   global prog
   s = 0
@@ -121,6 +121,7 @@ bp = None
 
 # if col[0].button('Bấm vào đây để bắt đầu huấn luyện'):
 tot = len(threshs) * len(kernel_sizes)
+
 with st.status('Đang thực hiện...', expanded=True) as sts:
   prog = st.progress(0)    
   bp = train_phase(True)
@@ -129,6 +130,7 @@ with st.status('Đang thực hiện...', expanded=True) as sts:
   st.write('Threshold:', bp[1])
   st.write('Kernel Size:', bp[2])
   sts.update(label='Hoàn thành!', state='complete', expanded=True)
+  
   
   #other results
 st.subheader('1.3. Kết quả')
