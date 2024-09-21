@@ -135,8 +135,8 @@ st.subheader('1.3. Kết quả')
 
 st.write('- Điều chỉnh các thông số ở sidebar để hiển thị các kết quả khác')
 st.sidebar.header('Parameters')
-thresh = st.sidebar.slider('Threshold', 0.0, 1.0, bp[1], 0.02)
-kernel_size = st.sidebar.slider('Kernel size', 3, 9, bp[2], 2)
+thresh = st.sidebar.slider('Threshold', 0.0, 1.0, bp[1], 0.02, key="thresh_slider")
+kernel_size = st.sidebar.slider('Kernel size', 3, 9, bp[2], 2, key="kernel_slider")
 
 col = st.columns(2)
 col[0].image(
