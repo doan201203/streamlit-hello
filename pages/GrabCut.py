@@ -31,56 +31,48 @@ DRAW_BG    = {'color' : BLACK, 'val' : 0}
 DRAW_FG    = {'color' : WHITE, 'val' : 1}
 DRAW_PR_FG = {'color' : GREEN, 'val' : 3}
 DRAW_PR_BG = {'color' : RED,   'val' : 2}
-DRAWING_MODE = ['Draw a rectangle', 'Draw touchup curves']
+DRAWING_MODE = ['Draw a rectangle']
 CONVERSION = {
   'Draw a rectangle': 'rect',
-  'Draw touchup curves': 'point'
+  # 'Draw touchup curves': 'point'
 }
 
 thickness  = 3
 
-def grcut():
-  #doc anh tu nguoi dung
-  img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
-  if img is not None:
-    #luu anh
-    if not os.path.exists('images'):
-      os.makedirs('images')
-    ori_img = cv.imread('images/'+img.name)
-    tmp = cv.cvtColor(ori_img, cv.COLOR_BGR2RGB)
-    imgg = Image.fromarray(tmp)
-    imgg.save('images/'+img.name)
+#doc anh tu nguoi dung
+img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
+if img is not None:
+  #luu anh
+  imgg = Image.open(img)
+  ori_img = np.array(imgg)
+  # tmp = ori_img.copy()
+  # if len(ori_img.shape) == 3:
+    # tmp = cv.cvtColor(ori_img, cv.COLOR_BGR2RGB)
+  # imgg = Image.fromarray(tmp)
+  # imgg.save('images/'+img.name)
+  
+  if imgg is not None:
+    copy = ori_img.copy()
+    mask2 = np.zeros(copy.shape[:2], dtype = np.uint8)
+    #hien thi mode ve anh
+    drawling_mode = st.sidebar.selectbox("Drawing mode", DRAWING_MODE)
+    stroke_color = "red"
     
-    if imgg is not None:
-      copy = ori_img.copy()
-      mask2 = np.zeros(copy.shape[:2], dtype = np.uint8)
-      #hien thi mode ve anh
-      drawling_mode = st.sidebar.selectbox("Drawing mode", DRAWING_MODE)
-      stroke_color = "red"
-      if drawling_mode == DRAWING_MODE[1]:
-        drawling_mode2 = st.sidebar.selectbox("Drawing mode", ( 'Select areas of sure foreground', 'Select areas of sure background'))
-        if drawling_mode2 == 'Select areas of sure background':
-          stroke_color = "black"
-        else:
-          stroke_color = "green"
-        
+    #usage
+    with st.form(key='form', clear_on_submit=True) as form:
       canvas_rs = st_canvas(
         background_image=imgg,
         update_streamlit=True,
-        height=imgg.height,
-        width=imgg.width, 
+        height=copy.shape[0],
+        width=copy.shape[1], 
         display_toolbar=True,
-        fill_color='' if drawling_mode == DRAWING_MODE[0] else 'black' if drawling_mode2 == 'Select areas of sure background' else 'green',
         stroke_width=2,
+        fill_color='',
         drawing_mode=CONVERSION[drawling_mode],
         stroke_color=stroke_color,
-        key="my_canvas"
+        key="my_canvas",
       )
-      
-      #
-      #
-      form = st.form(key='form')
-      # print(canvas_rs)
+    
       rec = []
       if canvas_rs.json_data is not None:
         rec = canvas_rs.json_data['objects']
@@ -113,9 +105,7 @@ def grcut():
             co = cv.GC_FGD
           cv.circle(mask2, (int(cenx), int(ceny)), r, co, -1)
         
-      if max_one_rec > 1:
-        st.warning("Only one rectangle is allowed")
-      submit = form.form_submit_button('Submit')
+      submit = st.form_submit_button('Submit')
       if submit:
         # print(max_one_rec, recc, fa, copy.shape)
         if max_one_rec > 0:
@@ -135,7 +125,6 @@ def grcut():
           img_tmp = cv.bitwise_and(copy, copy, mask=alpha)
           # print(mask)
           # st.image(mask, caption="Edited")
-          st.image(cv.cvtColor(crop_to_alpha(alpha, img_tmp), cv.COLOR_RGB2BGR), caption="Edited")
+          st.image(crop_to_alpha(alpha, img_tmp), caption="Edited")
         else:
           st.warning("Please draw a rectangle")
-grcut()
