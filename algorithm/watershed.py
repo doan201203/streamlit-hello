@@ -31,8 +31,7 @@ def watershed(img, kernelsize, thres):
   markers[unknown == 255] = 0
   
   markers = cv.watershed(img, markers)
-  img[markers == -1] = [255, 0, 0]
-  return img, markers
+  return markers
 
 def get_mask(img):
   mask = np.zeros(img.shape, dtype=np.uint8)
