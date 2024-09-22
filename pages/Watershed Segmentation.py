@@ -68,7 +68,7 @@ st.markdown(
 image_result = {}
 ave_dice = {}
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=240)
 def train_phase(save_rs):
   prog = st.progress(0)
   s = 0
@@ -136,7 +136,6 @@ if st.session_state.load_state or (not image_result and os.path.isfile('./miscs/
         ave_dice = pickle.load(f)
 
 
-# if col[0].button('Bấm vào đây để bắt đầu huấn luyện'):
 tot = len(threshs) * len(kernel_sizes)
 
 with st.status('Đang thực hiện...', expanded=True) as sts:
