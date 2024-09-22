@@ -154,7 +154,6 @@ with st.status('Đang thực hiện...', expanded=True) as sts:
           pickle.dump(ave_dice, f)
   st.session_state['load_state'] = True
   
-  
 #other results
 st.subheader('1.3. Kết quả')
     
