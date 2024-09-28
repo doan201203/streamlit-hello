@@ -59,10 +59,13 @@ if img is not None:
     stroke_color = "red"
     
     #usage
-    with st.form(key='form', clear_on_submit=True) as form:
+    
+    col1, col2 = st.columns(2)
+    col1 = st.form(key='form', clear_on_submit=True)
+    with col1 as form:
       canvas_rs = st_canvas(
         background_image=imgg,
-        update_streamlit=True,
+        # update_streamlit=True,
         height=copy.shape[0],
         width=copy.shape[1], 
         display_toolbar=True,
@@ -70,7 +73,7 @@ if img is not None:
         fill_color='',
         drawing_mode=CONVERSION[drawling_mode],
         stroke_color=stroke_color,
-        key="my_canvas",
+        # key="my_canvas",
       )
     
       rec = []
@@ -125,6 +128,7 @@ if img is not None:
           img_tmp = cv.bitwise_and(copy, copy, mask=alpha)
           # print(mask)
           # st.image(mask, caption="Edited")
-          st.image(crop_to_alpha(alpha, img_tmp), caption="Edited")
+
+          col2 = st.image(crop_to_alpha(alpha, img_tmp), caption="Edited", use_column_width=True)
         else:
           st.warning("Please draw a rectangle")
