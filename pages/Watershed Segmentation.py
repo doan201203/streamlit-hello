@@ -13,7 +13,7 @@ from algorithm.watershed import (
   iou,
 )
 import numpy as np
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 st.title('Thuật toán Watershed Segmentation')
 
 st.header('Phân đoạn kí tự biển số xe với Watershed')
