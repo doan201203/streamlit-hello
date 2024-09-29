@@ -129,6 +129,6 @@ if img is not None:
           # print(mask)
           # st.image(mask, caption="Edited")
 
-          col2 = st.image(crop_to_alpha(alpha, img_tmp), caption="Edited", use_column_width=True)
+          col2 = st.image(crop_to_alpha(alpha, img_tmp), caption="Edited")
         else:
           st.warning("Please draw a rectangle")
