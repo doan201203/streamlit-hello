@@ -45,12 +45,7 @@ if img is not None:
   #luu anh
   imgg = Image.open(img)
   ori_img = np.array(imgg)
-  # tmp = ori_img.copy()
-  # if len(ori_img.shape) == 3:
-    # tmp = cv.cvtColor(ori_img, cv.COLOR_BGR2RGB)
-  # imgg = Image.fromarray(tmp)
-  # imgg.save('images/'+img.name)
-  
+
   if imgg is not None:
     copy = ori_img.copy()
     mask2 = np.zeros(copy.shape[:2], dtype = np.uint8)
@@ -110,7 +105,6 @@ if img is not None:
         
       submit = st.form_submit_button('Submit')
       if submit:
-        # print(max_one_rec, recc, fa, copy.shape)
         if max_one_rec > 0:
           if fa == 0:
             mask_type = cv.GC_INIT_WITH_RECT
@@ -119,15 +113,12 @@ if img is not None:
             mask_type = cv.GC_INIT_WITH_MASK
           bgdmodel = np.zeros((1, 65), np.float64)
           fgdmodel = np.zeros((1, 65), np.float64)
-          # mask = np.zeros(copy.shape[:2], dtype = np.uint8)
           mask2[mask2 == 0] = cv.GC_BGD
           mask2[mask2 > 0] = cv.GC_PR_BGD
           
           cv.grabCut(copy, mask2, recc, bgdmodel, fgdmodel, 1, mask_type)
           alpha = np.where((mask2 == cv.GC_BGD) | (mask2==cv.GC_PR_BGD), 0, 255).astype('uint8')
           img_tmp = cv.bitwise_and(copy, copy, mask=alpha)
-          # print(mask)
-          # st.image(mask, caption="Edited")
 
           col2 = st.image(crop_to_alpha(alpha, img_tmp), caption="Edited")
         else:
