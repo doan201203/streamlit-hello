@@ -66,20 +66,19 @@ st.markdown(
 
 haar_features = []
 
-def extract_feature_image(img):
+def extract_ft(img):
+    features = []
     image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     image = cv.resize(image, (24, 24))
     ii = cv.integral(image)
-    features = []
-    for haar_feature in haar_features:
-        value = 0
-        for rect in haar_feature:
-            x, y, w, h, wt = rect
-            value += wt * (
-                ii[y + h][x + w] + ii[y][x] - ii[y][x + w] - ii[y + h][x]
-            )
-        features.append(value)
-    return features
+    for feature in haar_features:
+        re = 0
+        for rec in feature:
+            x, y, w, h, weight = rec
+            re += weight * (ii[y + h][x + w] + ii[y][x] - ii[y][x + w] - ii[y + h][x])
+        features.append(re)
+    return np.asarray(features)
+  
 X, y = [], []
 
 with open('./miscs/X.pkl', 'rb') as f:
@@ -100,20 +99,6 @@ X, y, haar_features = load_data()
 
 st.header("2. Phát hiện khuôn mặt")
 
-
-def detect_faces(image):
-    faces = []
-    for k in np.array([4]):
-        sz = min(24 * k, image.shape[0], image.shape[1])
-        for x in range(0, image.shape[1] - sz, 50):
-            for _y in range(0, image.shape[0] - sz, 50):
-                img = image[_y : _y + sz, x : x + sz]
-                features = extract_feature_image(img)
-                if classifier.predict([features])[0] == 1:
-                    faces.append((x, _y, sz, sz))
-
-    return faces
-
 def detect_faces_multiscale(image, classifier, scaleFactor=1.1, minNeighbors=3, minSize=(24, 24), stepSize=10):
     faces = []
     h, w = image.shape[:2]
@@ -123,7 +108,6 @@ def detect_faces_multiscale(image, classifier, scaleFactor=1.1, minNeighbors=3, 
     while scale > 0.1:
         print(scale)
         # if (int(w * scale) > 0 and int(h * scale) > 0):
-        # Scale ảnh (giống như detectMultiScale thực hiện)
         resized_img = cv.resize(image, (int(w * scale), int(h * scale)))
 
         # Di chuyển cửa sổ quét với kích thước cố định minSize
@@ -133,7 +117,7 @@ def detect_faces_multiscale(image, classifier, scaleFactor=1.1, minNeighbors=3, 
                 window = resized_img[y:y + minSize[1], x:x + minSize[0]]
                 
                 # Trích xuất đặc trưng từ cửa sổ
-                features = extract_feature_image(window)
+                features = extract_ft(window)
                 
                 # Dự đoán nếu là khuôn mặt
                 if classifier.predict([features])[0] == 1:
