@@ -68,14 +68,13 @@ haar_features = []
 
 def extract_ft(img):
     features = []
-    image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    image = cv.resize(image, (24, 24))
-    ii = cv.integral(image)
+    image = cv.resize(cv.cvtColor(img, cv.COLOR_BGR2GRAY), (24, 24))
+    pref = cv.integral(image)
     for feature in haar_features:
         re = 0
         for rec in feature:
-            x, y, w, h, weight = rec
-            re += weight * (ii[y + h][x + w] + ii[y][x] - ii[y][x + w] - ii[y + h][x])
+            i, j, w, h, weight = rec
+            re += weight * (pref[j + h][i + w] + pref[j][i] - pref[j][i + w] - pref[j + h][i])
         features.append(re)
     return np.asarray(features)
   
