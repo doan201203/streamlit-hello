@@ -145,9 +145,9 @@ if file is not None:
     img = image.copy()
     # print(img.shape)
     with st.spinner('Đang xử lí ...'):
-        faces = detect_faces(img)
+        faces = detect_faces_multiscale(img, classifier, 1.3, 5, (24, 24), 15)
     for x, y, w, h in faces:
-        cv.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
+        cv.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 2)
     with st.expander("Ảnh sau khi phát hiện khuôn mặt", expanded=False):
       st.image(img, caption="Ảnh sau khi phát hiện khuôn mặt", use_column_width=True, channels="BGR")
 

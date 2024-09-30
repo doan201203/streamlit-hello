@@ -9,9 +9,13 @@ import os
 from algorithm.watershed import (
   watershed,
   get_mask,
-  _2dice,
-  iou,
 )
+
+from utils.metrics import (
+    iou,
+    _2dice,
+)
+
 import numpy as np
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
 st.title('Thuật toán Watershed Segmentation')
@@ -52,13 +56,13 @@ METRIS = [
   },
 ]
 
-setUpExperiment = "##### Các tham số:\n### Kernel Size : [(3, 3); (5, 5); (7, 7)]. Sử dụng trong các toán tử morphological.\n### Thresh: [0, 0.02, 0.04, ..., 0.3]. Sử dụng để phân ngưỡng foreground.\n ##### Độ đo: \n"
+# Convert to black-white color 
 labels_train[0][labels_train[0] != 0] = 255
 labels_train[1][labels_train[1] != 0] = 255
 labels_test[0][labels_test[0] != 0] = 255
 labels_test[1][labels_test[1] != 0] = 255
 
-#display anh tap train
+# Display train image set
 st.subheader('1.1. Training images')
 col = st.columns(2)
 col[0].image(images_train[0], caption='1xemay322.jpg', channels='BGR', use_column_width=True)
@@ -67,10 +71,9 @@ col[1].image(images_train[1], caption='1xemay362.jpg', channels='BGR', use_colum
 threshs = np.arange(0.0, 0.3+0.00001, 0.02)
 kernel_sizes = np.arange(3, 8, 2)
 
-#display parameters
+# Display hyperparameters
 st.subheader('1.2. Thiết lập thí nghiệm')
 st.markdown(
-  # setUpExperiment
     """
         ##### Các tham số:
         - Kernel Size : [(3, 3); (5, 5); (7, 7)]. Sử dụng trong các toán tử morphological.
@@ -83,8 +86,8 @@ st.markdown(
     """
 )
 
+# Select metric
 metric = st.radio('', METRIS, format_func=lambda x: x['name'], horizontal=True, key='metric')
-
 st.write('Độ đo được chọn:', metric['name'])
 
 image_result = {}
@@ -128,7 +131,6 @@ def make_data(thresh, kernel_size, mark,metric):
     return res
     
 def visualize_result(metric):
-    #numRow = (len(kernel_sizes) + 1) // 2
   df = []
   for i in kernel_sizes:
       for j in range(len(threshs)):
@@ -146,11 +148,11 @@ def visualize_result(metric):
 col = st.columns(2)
 bp = None
 
-#create session_state
+# Create session_state
 if 'load_state' not in st.session_state:
     st.session_state['load_state'] = False
 
-#reload data
+# Reload data
 if not image_result:
   if metric['name'] == 'Dice Coefficient' and os.path.exists('./miscs/dice.pk'):
     with open('./miscs/dice.pk', 'rb') as f:
@@ -164,8 +166,8 @@ if not image_result:
       with open('./miscs/iou', 'rb') as f:
         ave_dice = pickle.load(f)
 
+# Waiting training and processing data
 tot = len(threshs) * len(kernel_sizes)
-
 with st.status('Đang thực hiện...', expanded=True) as sts:
   bp = train_phase(True, metric['name'])
   sts.update(label='Hoàn thành!', state='complete' if st.session_state['load_state'] else 'running', expanded=True)
@@ -174,7 +176,6 @@ with st.status('Đang thực hiện...', expanded=True) as sts:
   st.write('Threshold:', bp[1])
   st.write('Kernel Size:', bp[2])
     
-  # if not st.session_state['load_state']:
   if not os.path.exists('./miscs/dice.pk') and metric['name'] == 'Dice Coefficient':
     with open('./miscs/dice.pk', 'wb') as f:
       pickle.dump(image_result, f)
@@ -186,9 +187,8 @@ with st.status('Đang thực hiện...', expanded=True) as sts:
         pickle.dump(image_result, f)
       with open('./miscs/iou', 'wb') as f:
         pickle.dump(ave_dice, f)
-  # st.session_state['load_state'] = True
   
-#other results
+# Results
 st.subheader('1.3. Kết quả')
     
 st.caption('Điều chỉnh các thông số ở sidebar để hiển thị các kết quả khác')
@@ -227,10 +227,10 @@ col[1].image(
 
 visualize_result(metric)
     
-#testing phase
+# Testing phase
 st.subheader('2. Testing')
 
-#display anh tap test
+# Display testing image set
 st.subheader('2.1. Testing images')
 col = st.columns(2)
 col[0].image(images_test[0], caption='2xemay103.jpg', channels='BGR', use_column_width=True)
@@ -241,7 +241,7 @@ st.caption('Tham số sử dụng:')
 st.write('Threshold:', bp[1])
 st.write('Kernel Size:', bp[2])
 
-#apply to test images
+#   Apply to test images
 st.caption('Hình ảnh sau khi áp dụng thuật toán :')
 cost = 0
 
