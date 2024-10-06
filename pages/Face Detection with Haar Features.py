@@ -226,7 +226,7 @@ st.header("2. Phát hiện khuôn mặt")
 file = st.file_uploader("Tải ảnh lên", type=["jpg", "jpeg", "png"])
 if file is not None:
     # choose k 
-    k = st.slider('Chọn k (cho kNN) ', 1, 31, 1, 2)
+    k = st.slider('Chọn k (cho kNN) ', 1, 49, 1, 2)
     print(k)
     haar_features = load_data('./datasets/faces_and_non_faces_data/output/cascade.xml')
     X, y = haar_features.X, haar_features.y
