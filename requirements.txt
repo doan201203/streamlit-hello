@@ -9,3 +9,4 @@ svgpathtools
 svgwrite
 scikit-learn
 matplotlib
+google-cloud-firestore
