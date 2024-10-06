@@ -17,7 +17,7 @@ from my_utils.metrics import (
 )
 
 import numpy as np
-st.set_page_config(layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(initial_sidebar_state="expanded")
 st.title('Thuật toán Watershed Segmentation')
 
 st.header('Phân đoạn kí tự biển số xe với Watershed')
@@ -85,6 +85,14 @@ st.markdown(
           [![Metric](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHKmi5ITcexRNHETgdO4b5jfjvC6QZ1YbL6w&s)]()
     """
 )
+
+st.markdown(
+  """
+    ##### Pipline thuật toán
+  """
+)
+
+st.image(cv.imread('./images/pipline_watershed_final.png'), clamp=True, use_column_width=True)
 
 # Select metric
 metric = st.radio('', METRIS, format_func=lambda x: x['name'], horizontal=True, key='metric')
