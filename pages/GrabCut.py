@@ -62,10 +62,12 @@ if img is not None:
   col1, col2 = st.columns(2)
   col1 = st.form(key='form', clear_on_submit=True)
   #scale if lager image
-  h, w = 500, 700
+  h, w = 550, 700
   reh, rew = ori_img.shape[0], ori_img.shape[1]
   if reh > rew:
-    h, w = 700, 500
+    h, w = 700, 550
+  ori_img = cv.resize(ori_img, (w, h))
+  
   with col1 as form:
     canvas_rs = st_canvas(
       background_image=imgg,
@@ -118,11 +120,13 @@ if img is not None:
         
         # ori_img = cv.resize(ori_img, (h, h))
         #size less than then dont resize
-        ori_img = cv.resize(ori_img, (w, h))
+        
         res = grabcut(
           ori_img, rect=recc
         )
-
+        # print(recc)
+        # cv.rectangle(ori_img, (recc[0], recc[1]), (recc[0] + recc[2], recc[1] + recc[3]), (0, 255, 0), 2)
+        
         col2 = st.image(res, caption="Edited")
       else:
         st.warning("Please draw a rectangle")

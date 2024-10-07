@@ -79,7 +79,7 @@ def bbox_to_rect(pos, label):
 def display_testimg():
   test_img_dir = './datasets/faces_and_non_faces_data/test/'
   imgs = os.listdir(os.path.join(test_img_dir, 'images'))
-  labels = os.listdir(os.path.join(test_img_dir, 'annotations'))
+  labels = os.listdir(os.path.join(test_img_dir, 'annotations2'))
   imgs.sort()
   labels.sort()
   
@@ -87,7 +87,7 @@ def display_testimg():
     col = st.columns(5)
     for j in range(5):
       pos = os.path.join(test_img_dir, 'images', imgs[i*5+j])
-      label = os.path.join(test_img_dir, 'annotations', labels[i*5+j])
+      label = os.path.join(test_img_dir, 'annotations2', labels[i*5+j])
       ii = bbox_to_rect(pos, label)
       #resize all ii with same size to display
       ii = cv.resize(ii, (512, 512)) 
@@ -159,7 +159,8 @@ def table_result():
       imgs.sort()
       labels.sort()
       img = cv.imread(os.path.join(test_img_dir, 'images', imgs[i*5+j]))
-      with open(os.path.join(test_img_dir, 'annotations', labels[i*5+j]) + 'txd', 'r') as f:
+        
+      with open(os.path.join(test_img_dir, 'annotations', imgs[i*5+j].split('.')[0] + '.txt'), 'r') as f:
         for line in f:
           line = line.split()
           x, y, w, h = map(int, line)
