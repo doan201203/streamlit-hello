@@ -125,6 +125,6 @@ if img is not None:
         )
         # cv.rectangle(ori_img, (recc[0], recc[1]), (recc[0] + recc[2], recc[1] + recc[3]), (0, 255, 0), 2)
         
-        col2 = st.image(recc, caption="Edited")
+        col2 = st.image(res, caption="Edited")
       else:
         st.warning("Please draw a rectangle")
