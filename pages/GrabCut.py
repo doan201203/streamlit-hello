@@ -118,15 +118,13 @@ if img is not None:
       if max_one_rec > 0:
         mask_type = cv.GC_INIT_WITH_RECT
         
-        # ori_img = cv.resize(ori_img, (h, h))
         #size less than then dont resize
         
         res = grabcut(
           ori_img, rect=recc
         )
-        # print(recc)
         # cv.rectangle(ori_img, (recc[0], recc[1]), (recc[0] + recc[2], recc[1] + recc[3]), (0, 255, 0), 2)
         
-        col2 = st.image(res, caption="Edited")
+        col2 = st.image(recc, caption="Edited")
       else:
         st.warning("Please draw a rectangle")
