@@ -5,7 +5,7 @@ import os
 from PIL import Image 
 from streamlit_drawable_canvas import st_canvas
 import numpy as np
-from algorithm.grabcut import grabcut
+from algorithm.grabcut import Grabcut
 
 st.set_page_config(page_title="GrabCut")
 st.markdown("# GrabCut")
@@ -14,10 +14,6 @@ st.sidebar.header("GrabCut")
 #!/usr/bin/env python
 
 # st.image()
-def crop_to_alpha(alpha, img):
-  x, y = alpha.nonzero()
-  if len(x) == 0 or len(y) == 0: return img
-  return img[np.min(x) : np.max(x), np.min(y) : np.max(y)]
 
 BLUE  = [255, 0, 0]       # rectangle color
 RED   = [0, 0, 255]       # PR BG
@@ -29,12 +25,15 @@ DRAW_BG    = {'color' : BLACK, 'val' : 0}
 DRAW_FG    = {'color' : WHITE, 'val' : 1}
 DRAW_PR_FG = {'color' : GREEN, 'val' : 3}
 DRAW_PR_BG = {'color' : RED,   'val' : 2}
-DRAWING_MODE = ['Draw a rectangle']
+DRAWING_MODE = ['Draw a rectangle', 'Draw touchup curves']
 CONVERSION = {
   'Draw a rectangle': 'rect',
-  # 'Draw touchup curves': 'point'
+  'Draw touchup curves': 'point'
 }
 
+@st.cache_data(show_spinner=False)
+def load_Grabcut(img):
+  return Grabcut(img)
 
 thickness  = 3
 
@@ -47,16 +46,31 @@ st.write('4. Sau khi vẽ xong hình chữ nhật bấm nút Submit để áp d�
 #doc anh tu nguoi dung
 img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
 if img is not None:
+  
+  
   #luu anh
   imgg = Image.open(img)
   ori_img = np.array(imgg)
+  
+  if img.name not in st.session_state:
+    st.session_state['rec_drawed'] = False
+    st.session_state['img_name'] = img
+  else:
+    if st.session_state['img_name'] != img:
+      st.session_state['rec_drawed'] = False
+      st.session_state['img_name'] = img
 
-  copy = ori_img.copy()
-  mask2 = np.zeros(copy.shape[:2], dtype = np.uint8)
+  extractor = load_Grabcut(ori_img)
   #hien thi mode ve anh
   drawling_mode = st.sidebar.selectbox("Drawing mode", DRAWING_MODE)
   stroke_color = "red"
   
+  if drawling_mode == 'Draw touchup curves':
+    touchup = st.sidebar.selectbox("Touchup curves", ('Foreground', 'Background'))
+    if touchup == 'Foreground':
+      stroke_color = "green"
+    else:
+      stroke_color = "black"
   #usage
   
   col1, col2 = st.columns(2)
@@ -73,12 +87,12 @@ if img is not None:
       background_image=imgg,
       display_toolbar=True,
       stroke_width=2,
-      fill_color='',
+      fill_color='' if drawling_mode== DRAWING_MODE[0] else stroke_color,
       drawing_mode=CONVERSION[drawling_mode],
       stroke_color=stroke_color,
       height=h,
       width=w,
-      # key="my_canvas",
+      key="my_canvas",
     )
   
     rec = []
@@ -96,21 +110,21 @@ if img is not None:
         w = rec[i]['width']
         h = rec[i]['height']
         recc = (min(x, x + w), min(y, y + h), w, h)
-      # if rec[i]['type'] == 'circle':
-      #   fa = 1
-      #   # print(rec[i])
-      #   x = rec[i]['left']
-      #   y = rec[i]['top']
-      #   r = rec[i]['radius']
-      #   ag = rec[i]['angle']
-      #   cenx = x + r * np.cos(ag * np.pi / 180)
-      #   ceny = y + r * np.sin(ag * np.pi / 180)
-      #   print(cenx, ceny)
-      #   color = rec[i]['fill']
-      #   if color == 'black':
-      #     co = cv.GC_BGD
-      #   else:
-      #     co = cv.GC_FGD
+      if rec[i]['type'] == 'circle':
+        fa = 1
+        # print(rec[i])
+        x = rec[i]['left']
+        y = rec[i]['top']
+        r = rec[i]['radius']
+        ag = rec[i]['angle']
+        cenx = x + r * np.cos(ag * np.pi / 180)
+        ceny = y + r * np.sin(ag * np.pi / 180)
+        # print(cenx, ceny)
+        color = rec[i]['fill']
+        if color == 'black':
+          co = cv.GC_BGD
+        else:
+          co = cv.GC_FGD
         # cv.circle(mask2, (int(cenx), int(ceny)), r, co, -1)
       
     submit = st.form_submit_button('Submit')
