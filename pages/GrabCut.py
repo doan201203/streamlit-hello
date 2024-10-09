@@ -7,7 +7,7 @@ from streamlit_drawable_canvas import st_canvas
 import numpy as np
 from algorithm.grabcut import Grabcut
 
-st.set_page_config(page_title="GrabCut")
+st.set_page_config(page_title="GrabCut", layout="wide")
 st.markdown("# GrabCut")
 st.sidebar.header("GrabCut")
 
@@ -28,7 +28,7 @@ DRAW_PR_BG = {'color' : RED,   'val' : 2}
 DRAWING_MODE = ['Draw a rectangle', 'Draw touchup curves']
 CONVERSION = {
   'Draw a rectangle': 'rect',
-  'Draw touchup curves': 'point'
+  'Draw touchup curves': 'freedraw'
 }
 
 @st.cache_data(show_spinner=False)
@@ -43,25 +43,13 @@ st.write('2. Vẽ 1 hình chữ nhật xung quanh đối tượng cần tách kh
 st.write('3. Ở bên dưới ảnh có các nút ↶, ↷, 🗑 tương ứng với các chức năng Undo, Redo, Reset hình chữ nhật đã vẽ')
 st.write('4. Sau khi vẽ xong hình chữ nhật bấm nút Submit để áp dụng thuật toán')
 
-#doc anh tu nguoi dung
 img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
+
 if img is not None:
-  
-  
-  #luu anh
   imgg = Image.open(img)
   ori_img = np.array(imgg)
-  
-  if img.name not in st.session_state:
-    st.session_state['rec_drawed'] = False
-    st.session_state['img_name'] = img
-  else:
-    if st.session_state['img_name'] != img:
-      st.session_state['rec_drawed'] = False
-      st.session_state['img_name'] = img
 
-  extractor = load_Grabcut(ori_img)
-  #hien thi mode ve anh
+  # Drawing mode  
   drawling_mode = st.sidebar.selectbox("Drawing mode", DRAWING_MODE)
   stroke_color = "red"
   
@@ -71,30 +59,46 @@ if img is not None:
       stroke_color = "green"
     else:
       stroke_color = "black"
-  #usage
-  
-  col1, col2 = st.columns(2)
-  col1 = st.form(key='form', clear_on_submit=True)
+
   #scale if lager image
-  h, w = 550, 700
-  reh, rew = ori_img.shape[0], ori_img.shape[1]
-  if reh > rew:
-    h, w = 700, 550
+  w = min(550, ori_img.shape[1]) 
+  h = w * ori_img.shape[0] // ori_img.shape[1] 
   ori_img = cv.resize(ori_img, (w, h))
+  imgg.resize((w, h))
   
-  with col1 as form:
+  extractor = load_Grabcut(ori_img)
+  if "img_name" not in st.session_state:
+    st.session_state['img_name'] = img
+    st.session_state['extractor'] = extractor
+    st.session_state['prev_img'] = None
+    st.session_state['prev_name'] = img.name
+    if 'my_canvas' in st.session_state:
+        del st.session_state['my_canvas']
+  else:
+    if st.session_state['img_name'] != img:
+      st.session_state['img_name'] = img
+      st.session_state['extractor'] = extractor
+      if st.session_state['prev_name'] in st.session_state:
+        del st.session_state[st.session_state['prev_name']]
+      st.session_state['prev_img'] = None
+      st.session_state['prev_name'] = img.name
+  
+  col = st.columns(2, gap='large')
+  with col[0]:
     canvas_rs = st_canvas(
       background_image=imgg,
       display_toolbar=True,
-      stroke_width=2,
+      stroke_width=6,
       fill_color='' if drawling_mode== DRAWING_MODE[0] else stroke_color,
       drawing_mode=CONVERSION[drawling_mode],
       stroke_color=stroke_color,
       height=h,
       width=w,
-      key="my_canvas",
+      update_streamlit=True,
+      key=img.name,
     )
-  
+
+    # Get all data from canvas
     rec = []
     if canvas_rs.json_data is not None:
       rec = canvas_rs.json_data['objects']
@@ -110,35 +114,35 @@ if img is not None:
         w = rec[i]['width']
         h = rec[i]['height']
         recc = (min(x, x + w), min(y, y + h), w, h)
-      if rec[i]['type'] == 'circle':
+      if rec[i]['type'] == 'path':
         fa = 1
-        # print(rec[i])
-        x = rec[i]['left']
-        y = rec[i]['top']
-        r = rec[i]['radius']
-        ag = rec[i]['angle']
-        cenx = x + r * np.cos(ag * np.pi / 180)
-        ceny = y + r * np.sin(ag * np.pi / 180)
-        # print(cenx, ceny)
-        color = rec[i]['fill']
+        color = rec[i]['stroke']
+        path = rec[i]['path']
         if color == 'black':
           co = cv.GC_BGD
         else:
           co = cv.GC_FGD
-        # cv.circle(mask2, (int(cenx), int(ceny)), r, co, -1)
-      
-    submit = st.form_submit_button('Submit')
+        st.session_state['extractor'].path(path, co)
+    
+    submit = st.button('Submit')
+    
+    # Display previous image edited
+    if st.session_state['prev_img'] is not None:
+      with col[1]:
+        col[1] = st.image(st.session_state['prev_img'], caption="Edited")  
+    
     if submit:
       if max_one_rec > 0:
-        mask_type = cv.GC_INIT_WITH_RECT
+        mask_type = cv.GC_INIT_WITH_RECT if fa == 0 else cv.GC_INIT_WITH_MASK
         
-        #size less than then dont resize
+        st.session_state['extractor'].set_rect(recc)
         
-        res = grabcut(
-          ori_img, rect=recc
+        res = st.session_state['extractor'].grabcut(
+          type=0 if mask_type == cv.GC_INIT_WITH_RECT else cv.GC_INIT_WITH_MASK
         )
-        # cv.rectangle(ori_img, (recc[0], recc[1]), (recc[0] + recc[2], recc[1] + recc[3]), (0, 255, 0), 2)
         
-        col2 = st.image(res, caption="Edited")
+        st.session_state['prev_img'] = res
+        with col[1]:
+          col[1] = st.image(res, caption="Edited")
       else:
         st.warning("Please draw a rectangle")
