@@ -82,11 +82,7 @@ if img is not None:
         del st.session_state[st.session_state['prev_name']]
       st.session_state['prev_img'] = None
       st.session_state['prev_name'] = img.name
-    else:
-      if st.session_state['prev_name'] in st.session_state:
-        del st.session_state[st.session_state['prev_name']]
-      st.session_state['prev_img'] = None
-  
+          
   col = st.columns(2, gap='large')
   with col[0]:
     canvas_rs = st_canvas(
