@@ -82,6 +82,10 @@ if img is not None:
         del st.session_state[st.session_state['prev_name']]
       st.session_state['prev_img'] = None
       st.session_state['prev_name'] = img.name
+    else:
+      if st.session_state['prev_name'] in st.session_state:
+        del st.session_state[st.session_state['prev_name']]
+      st.session_state['prev_img'] = None
   
   col = st.columns(2, gap='large')
   with col[0]:
@@ -136,10 +140,10 @@ if img is not None:
         mask_type = cv.GC_INIT_WITH_RECT if fa == 0 else cv.GC_INIT_WITH_MASK
         
         st.session_state['extractor'].set_rect(recc)
-        
-        res = st.session_state['extractor'].grabcut(
-          type=0 if mask_type == cv.GC_INIT_WITH_RECT else cv.GC_INIT_WITH_MASK
-        )
+        with st.spinner("Processing..."):
+          res = st.session_state['extractor'].grabcut(
+            type=0 if mask_type == cv.GC_INIT_WITH_RECT else cv.GC_INIT_WITH_MASK
+          )
         
         st.session_state['prev_img'] = res
         with col[1]:
