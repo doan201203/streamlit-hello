@@ -118,7 +118,7 @@ def sec1():
     def add():
       st.write("Thêm")
       with sec11:
-        with st.form(key="add") as add_form:
+        with st.form(key="add", clear_on_submit=True):
           cols = st.columns(2)
           msv = cols[0].text_input("MSV")
           name = cols[1].text_input("Name")
