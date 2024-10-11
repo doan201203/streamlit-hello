@@ -55,7 +55,7 @@ if img is not None:
   stroke_color = "red"
   
   if drawling_mode == 'Draw touchup curves':
-    touchup = st.sidebar.selectbox("Touchup curves", ('Foreground', 'Background'))
+    touchup = st.sidebar.radio("Touchup curves", ('Foreground', 'Background'))
     if touchup == 'Foreground':
       stroke_color = "green"
     else:
