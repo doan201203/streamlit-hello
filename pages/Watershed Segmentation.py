@@ -21,7 +21,7 @@ st.set_page_config(initial_sidebar_state="expanded")
 st.title('Thuật toán Watershed Segmentation')
 
 st.header('Phân đoạn kí tự biển số xe với Watershed')
-st.subheader('1. Training')
+st.subheader('1. Training', divider=True)
 
 images_train = [
   cv.imread('./datasets/biensoxe/train/images/1xemay322.jpg'),
@@ -92,7 +92,7 @@ st.markdown(
   """
 )
 
-st.image(cv.imread('./images/pipline_watershed_final.png'), clamp=True, use_column_width=True)
+st.image(cv.imread('./images/pipline_watershed_final.jpg'), clamp=True, use_column_width=True)
 
 # Select metric
 metric = st.radio('', METRIS, format_func=lambda x: x['name'], horizontal=True, key='metric')
@@ -197,7 +197,7 @@ with st.status('Đang thực hiện...', expanded=True) as sts:
         pickle.dump(ave_dice, f)
   
 # Results
-st.subheader('1.3. Kết quả')
+st.subheader('1.3. Kết quả', divider=True)
     
 st.caption('Điều chỉnh các thông số ở sidebar để hiển thị các kết quả khác')
 st.sidebar.header('Parameters')
@@ -236,7 +236,7 @@ col[1].image(
 visualize_result(metric)
     
 # Testing phase
-st.subheader('2. Testing')
+st.subheader('2. Testing', divider=True)
 
 # Display testing image set
 st.subheader('2.1. Testing images')
@@ -269,5 +269,5 @@ for i in range(len(images_test)):
 
 str = 'Average {} :'.format(metric['name'])
 st.write(str, cost / len(images_test))
-  
+
   
