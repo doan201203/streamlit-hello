@@ -14,10 +14,6 @@ from miscs.face_models.yunet import YuNet
 from miscs.face_models.sface import SFace
 from my_utils.card_verify import Verification
 import numpy as np
-import functions_framework
-from cloudevents.http.event import CloudEvent
-import firebase_admin as fa
-from firebase_admin import credentials
 
 from firebase_functions.firestore_fn import (
   on_document_created,
@@ -109,18 +105,6 @@ def parse_data(doc: firestore.CollectionReference):
 
   return pd.DataFrame(tb)
   
-@on_document_updated(document="face_dataset/{docId}/")
-def store_embedding(event : Event[Change[DocumentSnapshot]])->None:
-  a = "new"
-  print(a)
-  print("moi", event.data.after.to_dict())
-
-@on_document_created(document="face_dataset/{docId}")
-def store_embedding(event : Event[DocumentSnapshot])->None:
-  a = "new"
-  print(a)
-  print("moi", event.data.after.to_dict())
-
 def get_all():
   return parse_data(db.collection('face_dataset').stream())
   
