@@ -15,16 +15,6 @@ from miscs.face_models.sface import SFace
 from my_utils.card_verify import Verification
 import numpy as np
 
-from firebase_functions.firestore_fn import (
-  on_document_created,
-  on_document_deleted,
-  on_document_updated,
-  on_document_written, 
-  Event,
-  Change,
-  DocumentSnapshot,
-)
-
 st.set_page_config(page_title="Face Verification", initial_sidebar_state="expanded", layout="wide")
 st.title("Face Verification")
 
