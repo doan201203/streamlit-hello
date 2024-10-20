@@ -17,7 +17,7 @@ st.set_page_config(page_title="Face Detection với Haar Features", initial_side
 st.title("Face Detection với Haar Features")
 
 ### TRAINING
-st.header("1. Thiết lập thí nghiệm")
+st.header("1. Thiết lập thí nghiệm", divider=True)
 st.subheader("1.1. Training images")
 st.markdown(
         """- Gồm 400 ảnh (faces) 24x24 thu thập từ ORL dataset, 400 ảnh (non-faces) 24x24 lấy nhiều nguồn trên internet. Một số hình ảnh mô tả tập dữ liệu được minh họa ở (hình 1).
@@ -222,7 +222,7 @@ table_result()
 # train()
 
 
-st.header("2. Phát hiện khuôn mặt")
+st.header("2. Phát hiện khuôn mặt", divider=True)
 
 file = st.file_uploader("Tải ảnh lên", type=["jpg", "jpeg", "png"])
 if file is not None:

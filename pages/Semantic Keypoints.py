@@ -9,7 +9,7 @@ import altair as alt
 import pandas as pd
 
 st.set_page_config(page_title="Semantic Keypoints", layout="wide")
-st.header('1. Dataset')
+st.header('1. Dataset', divider=True)
 st.markdown("""
                 - Thu thập từ Synthetic Shapes Dataset.
                 - Gồm 4000 ảnh được chia thành 8 loại hình cụ thể, với mỗi loại hình bao gồm 500 ảnh được minh họa như hình bên dưới. 
@@ -26,7 +26,7 @@ def display_dataset(fd):
     
 
 display_dataset('sample')
-st.header('2. Đánh giá kết quả dựa trên độ đo Precision và Recall')
+st.header('2. Đánh giá kết quả dựa trên độ đo Precision và Recall', divider=True)
 col2 = st.columns(2)
 # result = requests.get('https://lh3.googleusercontent.com/X3iU9gn6QFMV-rMWevV2W_w562vdbdr9n-lBlVJxFDyv-XcIwR_s1ZAkZMqnmfsIjXviKKT4KoYb4HI7rp8upFUpCN7DZv39Ys5Bv-o-_RsWFT-nP-ecjqm3UxEJr98cwhhDKijvOy5obdkEekIBMLnFjQzZ5y6b-zwMOwo72L5PLUmLcdPwhl5PVcI5dw')
 col2[0].image(Image.open('./datasets/sythetic/de.png'),channels='BGR', use_column_width=True)
@@ -64,7 +64,7 @@ df2 = pd.DataFrame(df2)
 # data = [make_data('SIFT', sift), make_data('ORB', orb)]
 # for i in sift:
     # print(i)
-st.subheader('2.1. SIFT')
+st.subheader('2.1. SIFT', divider=True)
 st.markdown("""
         - Minh họa kết quả dựa trên thuật toán SIFT.
         """, unsafe_allow_html=True)
@@ -90,7 +90,7 @@ ch = alt.Chart(df1).mark_bar().encode(
 )
 col2[1].altair_chart(ch, use_container_width=True)
 
-st.subheader('2.2. ORB')
+st.subheader('2.2. ORB', divider=True)
 st.markdown("""
             - Minh họa kết quả dựa trên thuật toán ORB.
             """, unsafe_allow_html=True)
@@ -115,7 +115,7 @@ ch = alt.Chart(df2).mark_bar().encode(
     title='Precision của ORB theo từng loại hình'
 )
 col2[1].altair_chart(ch, use_container_width=True)
-st.header('3. So sánh kết quả giữa SIFT và ORB')
+st.header('3. So sánh kết quả giữa SIFT và ORB', divider=True)
 st.markdown("""
             - So sánh kết quả giữa SIFT và ORB dựa trên độ đo Precision và Recall.
             """, unsafe_allow_html=True)
