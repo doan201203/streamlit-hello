@@ -30,7 +30,7 @@ class Grabcut:
         bModel = np.zeros((1, 65), np.float64)
         
         mode = cv2.GC_INIT_WITH_RECT if type == 0 else cv2.GC_INIT_WITH_MASK
-        self.mask, bModel, fModel = cv2.grabCut(self.img, self.mask, self.rect if type == 0 else None , bModel, fModel, 5, mode=mode)
+        self.mask, bModel, fModel = cv2.grabCut(self.img, self.mask, self.rect if type == 0 else None , bModel, fModel, 1, mode=mode)
         mask3 = np.where((self.mask==cv2.GC_FGD)|(self.mask==cv2.GC_PR_FGD), 255, 0).astype('uint8')
 
         new_img = cv2.bitwise_and(self.img, self.img, mask=mask3)
