@@ -39,7 +39,7 @@ class Grabcut:
         return (1-t)**2 * np.array(p0) + 2 * (1-t) * t * np.array(p1) + t**2 * np.array(p2)
 
     def draw_quad(self, p0, p1, p2, color, thickness=1):
-        for i in np.linspace(0, 1, 100):
+        for i in np.linspace(0, 1, 10):
             poo = self.quadratic_bezier(p0, p1, p2, i)
             poo = tuple(map(int, poo))
             self.mask = cv2.circle(self.mask, poo, thickness, color, -1)
