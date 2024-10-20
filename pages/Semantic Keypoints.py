@@ -34,7 +34,7 @@ col2[0].image(Image.open('./datasets/sythetic/de.png'),channels='BGR', use_colum
 col2[1].markdown("""
                 - Precision: Tỷ lệ số keypoints dự đoán đúng trên tổng số keypoints dự đoán.
                 - Recall: Tỷ lệ số keypoints dự đoán đúng trên tổng số keypoints thực tế.
-                - Một dự đoán được xem là đúng nếu khoảng cách ***Manhattan*** giữa keypoint dự đoán và keypoint thực tế chênh lệch không quá 7.
+                - Một dự đoán được xem là đúng nếu khoảng cách ***Manhattan*** giữa keypoint dự đoán và keypoint thực tế chênh lệch không quá 4.
                 - Các tham số của ORB và SIFT được đặt mặc định.
             """)
 
