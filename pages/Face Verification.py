@@ -186,7 +186,7 @@ def sec1():
           if col[1]:
             print("HERE")
             if the_sv and chan_dung and msv and name:
-              with st.spinner("Dang xu li"):
+              with st.spinner("Đang xử lí"):
                 sts = controller.insert(
                                 msv=msv,
                                 name=name,
@@ -194,9 +194,9 @@ def sec1():
                                 chandung=chan_dung,
                                 )
                 if sts == -1:
-                  st.toast("Khong tim thay khuon mat, vui long thu anh khac")
+                  st.toast("Không tìm thấy khuôn mặt, vui lòng thử ảnh khác")
                 elif sts == -2:
-                  st.toast("Tim thay nhieu khuon mat, vui long thu anh khac")
+                  st.toast("Tìm thấy nhiều khuôn mặt, vui lòng thử ảnh khác")
                 else:
                   st.toast("Thêm thành công", icon=":material/check:")
                   st.session_state.ctr = 1
@@ -245,12 +245,12 @@ def sec1():
             id = data.get("id")
             print(id)
             if col:
-              with st.spinner("Dang xu li"):
+              with st.spinner("Đang xử lí"):
                 sts = controller.update(id, msv if msv else None, name if name else None, the_sv, chan_dung)
                 if sts == -1:
-                  st.toast('Khong tim thay')
+                  st.toast("Không tìm thấy khuôn mặt, vui lòng thử ảnh khác")
                 elif sts == -2:
-                  st.toast('Qua nhieu')
+                  st.toast("Tìm thấy nhiều khuôn mặt, vui lòng thử ảnh khác")
                 else:
                   st.session_state.ctr = 1
                   st.toast("Cập nhật thành công", icon=":material/check:")
@@ -335,7 +335,7 @@ def sec2():
     submit = st.form_submit_button("Xác thực", use_container_width=True)
     if submit:
       if cols[0] and cols[1]:
-        with st.spinner('Dang xu li'):
+        with st.spinner('Đang xử lí'):
           detector = load_detector(0.85)
           regc = load_recognizer()
           
