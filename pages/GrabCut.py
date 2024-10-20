@@ -128,6 +128,7 @@ if img is not None:
       
       submit = st.form_submit_button('Submit')
       
+      
       # Display previous image edited
       if st.session_state['prev_img'] is not None:
         with col[1]:
