@@ -2,17 +2,21 @@ from miscs.face_models.sface import SFace
 from miscs.face_models.yunet import YuNet
 import numpy as np
 import cv2 as cv
+from my_utils.face_controller import FaceController
 
 class Verification:
   def __init__(self, detector: YuNet, recognizer: SFace):
     self.detector = detector
     self.recognizer = recognizer
+    self.dt = FaceController('face_dataset')
   
   def set_card(self, card_number):
     self.card_number = card_number
+    _, self.card_number = self.dt.detect(self.card_number)
   
   def set_selfie(self, selfie):
     self.selfie = selfie
+    _, self.selfie = self.dt.detect(self.selfie)
 
   def detect(self, image):
     self.detector.setInputSize((image.shape[1], image.shape[0]))
@@ -22,6 +26,7 @@ class Verification:
   def verify_card(self):
     face_card = self.detect(self.card_number)
     face2 = self.detect(self.selfie)
+    
     if face_card.shape[0] > 0 and face2.shape[0] > 0:
       score, matches = [], []
       for face in face2:

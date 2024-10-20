@@ -14,6 +14,7 @@ from miscs.face_models.yunet import YuNet
 from miscs.face_models.sface import SFace
 from my_utils.card_verify import Verification
 import numpy as np
+from my_utils.face_controller import FaceController
 
 st.set_page_config(page_title="Face Verification", initial_sidebar_state="expanded", layout="wide")
 st.title("Face Verification")
@@ -23,16 +24,18 @@ tools_key = [
   "display_edit",
   "display_search",
   "display_delete",
-  "display_home",
+  "home",
+  "empty",
 ]
 
 # app = fa.initialize_app()
 
 @st.cache_resource(show_spinner=False, ttl=3600)
 def connect():
-  db = firestore.Client.from_service_account_info(st.secrets)
-  bucket = storage.Client.from_service_account_info(st.secrets).get_bucket('demo2-2a1d9.appspot.com')
-  return db, bucket
+  controller = FaceController("face_dataset")
+  # db = firestore.Client.from_service_account_info(st.secrets)
+  # bucket = storage.Client.from_service_account_info(st.secrets).get_bucket('demo2-2a1d9.appspot.com')
+  return controller
 
 MODELS_PATH = "./miscs/face_models"
 BACKEND_TARGET_PAIR = [
@@ -63,9 +66,9 @@ def load_recognizer():
                 )
   return model
 
-db, bucket = connect()
+controller = connect()
 
-def parse_data(doc: firestore.CollectionReference):
+def parse_data(doc: dict):
   tb = {
     "msv" : [],
     "name" : [],
@@ -77,26 +80,26 @@ def parse_data(doc: firestore.CollectionReference):
     "feature_chandung": [],
   }
 
-  for i in doc:
-    tb["id"].append(i.id)
-    j = i.to_dict()
-    tb["feature_chandung"].append(j["feature_chandung"])
+  for i, dat in doc.items():
+    tb["id"].append(i)
+    # j = i.to_dict()
+    tb["feature_chandung"].append(dat["feature_chandung"])
     tb["checkbox"].append(False)
-    tb["msv"].append(j["msv"])
-    tb["name"].append(j["name"])
-    path1 = j["TheSV"].replace("gs://demo2-2a1d9.appspot.com/","")
-    path2 = j["ChanDung"].replace("gs://demo2-2a1d9.appspot.com/","")
+    tb["msv"].append(dat["msv"])
+    tb["name"].append(dat["name"])
+    path1 = dat["TheSV"].replace("gs://demo2-2a1d9.appspot.com/","")
+    path2 = dat["ChanDung"].replace("gs://demo2-2a1d9.appspot.com/","")
 
-    public_url = bucket.blob(path1).generate_signed_url(expiration=timedelta(seconds=3300), method='GET')
+    public_url = controller.db.bucket.blob(path1).generate_signed_url(expiration=timedelta(seconds=3300), method='GET')
     tb["TheSV"].append(public_url)
-    tb["feature"].append(j["feature"])
-    public_url = bucket.blob(path2).generate_signed_url(expiration=timedelta(seconds=3600), method='GET')
+    tb["feature"].append(dat["feature"])
+    public_url = controller.db.bucket.blob(path2).generate_signed_url(expiration=timedelta(seconds=3600), method='GET')
     tb["ChanDung"].append(public_url)
 
   return pd.DataFrame(tb)
   
 def get_all():
-  return parse_data(db.collection('face_dataset').stream())
+  return parse_data(controller.parse_data())
   
 def display_table(tb):
   return st.data_editor(
@@ -146,7 +149,7 @@ def sec1():
   
   with st.container():
     tools_bar = st.columns([5, 1, 1, 1, 1, 1], gap='small')
-    tools_bar[1].button("Làm mới", use_container_width=True, on_click=callb, args=("display_home",), icon=":material/refresh:")
+    tools_bar[1].button("Làm mới", use_container_width=True, on_click=callb, args=("empty",), icon=":material/refresh:")
     tools_bar[2].button("Tìm kiếm", use_container_width=True, on_click=callb, args=("display_search",), icon=":material/search:")
     tools_bar[3].button("Thêm", use_container_width=True, on_click=callb, args=("display_add",), icon=":material/add:")
     tools_bar[4].button("Chỉnh sửa", use_container_width=True, on_click=callb, args=("display_edit",), icon=":material/edit:")
@@ -183,49 +186,22 @@ def sec1():
           if col[1]:
             print("HERE")
             if the_sv and chan_dung and msv and name:
-              path1 = f"face_dataset/TheSV/{the_sv.name}"
-              path2 = f"face_dataset/ChanDung/{chan_dung.name}"
-                # print(path1, path2, the_sv.t)
-              img1 = Image.open(the_sv)
-              img1 = cv.cvtColor(np.array(img1), cv.COLOR_RGB2BGR)
-              max_width = 640
-              scale = max_width / img1.shape[1]
-              img1 = cv.resize(img1, (max_width, int(img1.shape[0] * scale)))
-              feature = get_feature(img1)
-
-              img2 = Image.open(chan_dung)
-              img2 = cv.cvtColor(np.array(img2), cv.COLOR_RGB2BGR)
-              scale = max_width / img2.shape[1]
-              img2 = cv.resize(img2, (max_width, int(img2.shape[0] * scale)))
-              feature2 = get_feature(img2)
-              # print(feature)
-              if len(feature) == 0 or len(feature2) == 0:
-                st.toast("Không tìm thấy khuôn mặt, vui lòng chọn ảnh khác", icon=":material/warning:")
-                time.sleep(1)
-              elif len(feature) > 1 or len(feature2) > 1:
-                st.toast("Tìm thấy nhiều khuôn mặt, vui lòng chọn ảnh khác", icon=":material/warning:")
-                time.sleep(1)
-              else:
-                the_sv.seek(0)
-                chan_dung.seek(0)
-                # print(feature[0][-1])
-                bucket.blob(path1).upload_from_file(the_sv, content_type=the_sv.type)
-                bucket.blob(path2).upload_from_file(chan_dung, content_type=chan_dung.type)
-                regc = load_recognizer()
-                feature = regc.infer(img1, bbox=feature[0][:-1])
-                feature2 = regc.infer(img2, bbox=feature2[0][:-1])
-                db.collection('face_dataset').add({
-                  "msv": msv,
-                  "name": name,
-                  "TheSV": f"gs://demo2-2a1d9.appspot.com/{path1}",
-                  "ChanDung": f"gs://demo2-2a1d9.appspot.com/{path2}",
-                  "feature": feature[0].tolist(),
-                  "feature_chandung": feature2[0].tolist(),
-                })
-                st.toast("Thêm thành công", icon=":material/check:")
-                st.session_state.ctr = 1
-                time.sleep(1.5)
-                st.rerun()
+              with st.spinner("Dang xu li"):
+                sts = controller.insert(
+                                msv=msv,
+                                name=name,
+                                thesv=the_sv,
+                                chandung=chan_dung,
+                                )
+                if sts == -1:
+                  st.toast("Khong tim thay khuon mat, vui long thu anh khac")
+                elif sts == -2:
+                  st.toast("Tim thay nhieu khuon mat, vui long thu anh khac")
+                else:
+                  st.toast("Thêm thành công", icon=":material/check:")
+                  st.session_state.ctr = 1
+                  time.sleep(1.5)
+                  st.rerun()
             else:
               st.toast("Vui lòng cung cấp đầy đủ thông tin", icon=":material/warning:")
     add()
@@ -236,9 +212,9 @@ def sec1():
     
     if len(checked) == 0:
       st.toast("Chọn một dòng để chỉnh sửa", icon=":material/warning:")
-      callb("display_home")
+      callb("home")
     elif len(checked) > 1:
-      callb("display_home")
+      callb("home")
       st.toast.warning("Chỉ được chọn tối đa một dòng để chỉnh sửa", icon=":material/warning:")
     else:
 
@@ -266,93 +242,24 @@ def sec1():
             the_sv = cols[0].file_uploader("TheSV", type=["jpg", "png", "jpeg"], accept_multiple_files=False, help="Upload an image")
             chan_dung = cols[1].file_uploader("ChanDung", type=["jpg", "png", "jpeg"], accept_multiple_files=False, help="Upload an image")
             col = st.form_submit_button("Xác nhận", use_container_width=True)
-            id = db.collection('face_dataset').where(filter=firestore.FieldFilter("msv", "==", data.get("msv"))).where(filter=firestore.FieldFilter("name", "==", data.get("name"))).stream()
-            ii = 0
-            
-            for dat in id:
-              ii = dat.id
-            
+            id = data.get("id")
+            print(id)
             if col:
-              feature, feature2 = None, None
-              ok1, ok2 = False, False
-              if the_sv:
-                img1 = Image.open(the_sv)
-                img1 = cv.cvtColor(np.array(img1), cv.COLOR_RGB2BGR)
-                feature = get_feature(img1)
-                
-                if len(feature) == 0:
-                  st.toast("Không tìm thấy khuôn mặt, vui lòng chọn ảnh khác", icon=":material/warning:")
-                  time.sleep(1)
-                  st.rerun()
-                elif len(feature) > 1:
-                  #toi da 1 khuon mat
-                  st.toast("Tìm thấy nhiều khuôn mặt, vui lòng chọn ảnh khác", icon=":material/warning:")
-                  time.sleep(1)
-                  st.rerun()
+              with st.spinner("Dang xu li"):
+                sts = controller.update(id, msv if msv else None, name if name else None, the_sv, chan_dung)
+                if sts == -1:
+                  st.toast('Khong tim thay')
+                elif sts == -2:
+                  st.toast('Qua nhieu')
                 else:
-                  ok1 = True
-              if chan_dung:
-                img2 = Image.open(chan_dung)
-                img2 = cv.cvtColor(np.array(img2), cv.COLOR_RGB2BGR)
-                max_width = 640
-                scale = max_width / img2.shape[1]
-                img2 = cv.resize(img2, (max_width, int(img2.shape[0] * scale)))
-                feature2 = get_feature(img2)
-                if len(feature2) == 0:
-                  st.toast("Không tìm thấy khuôn mặt, vui lòng chọn ảnh khác", icon=":material/warning:")
+                  st.session_state.ctr = 1
+                  st.toast("Cập nhật thành công", icon=":material/check:")
+                  callb("home")
                   time.sleep(1)
                   st.rerun()
-                elif len(feature2) > 1:
-                  st.toast("Tìm thấy nhiều khuôn mặt, vui lòng chọn ảnh khác", icon=":material/warning:")
-                  time.sleep(1)
-                  st.rerun()
-                else:
-                  ok2 = True
-              
-              if (not ok1 and feature is not None) or (not ok2 and feature2 is not None):
-                st.toast("Lỗi xác thực khuôn mặt, vui lòng chọn ảnh khác", icon=":material/warning:")
-              else:
-                
-                if msv:
-                  db.collection('face_dataset').document(ii).update({
-                    "msv": msv,
-                  })
-                if name:
-                  db.collection('face_dataset').document(ii).update({
-                    "name": name,
-                  })
-                if feature is not None:
-                  regc = load_recognizer()
-                  feature = regc.infer(img1, bbox=feature[0][:-1])
-                  the_sv.seek(0)
-                  path1 = f"face_dataset/TheSV/{the_sv.name}"
-                  bucket.blob(path1).upload_from_file(the_sv, content_type=the_sv.type)
-                  db.collection('face_dataset').document(ii).update({
-                    "TheSV": f"gs://demo2-2a1d9.appspot.com/{path1}",
-                  })
-                  db.collection('face_dataset').document(ii).update({
-                    "feature": feature[0].tolist(),
-                  })
-                if feature2 is not None:
-                  regc = load_recognizer()
-                  feature2 = regc.infer(img2, bbox=feature2[0][:-1])
-                  chan_dung.seek(0)
-                  path2 = f"face_dataset/ChanDung/{chan_dung.name}"
-                  bucket.blob(path2).upload_from_file(chan_dung, content_type=chan_dung.type)
-                  db.collection('face_dataset').document(ii).update({
-                    "ChanDung": f"gs://demo2-2a1d9.appspot.com/{path2}",
-                  })
-                  db.collection('face_dataset').document(ii).update({
-                    "feature_chandung": feature2[0].tolist(),
-                  })
-                  
-                st.session_state.ctr = 1
-                st.toast("Cập nhật thành công", icon=":material/check:")
-                callb("display_home")
-                time.sleep(1.5)
-                st.rerun()
-                
+            
       modify("Edit", checked.iloc[0])
+      
   elif st.session_state.display_search:
     def search():
       with sec11:
@@ -364,18 +271,12 @@ def sec1():
           sub = st.form_submit_button("Search", use_container_width=True)
           if sub:
             # like select * from face_dataset where msv like '%msv%' and name like '%name%'
-            maxx = msv + '\uf8ff'
-            maxx2 = name + '\uf8ff'
-            dt = db.collection('face_dataset') \
-                                              .where(filter=fil("msv", ">=", msv)) \
-                                              .where(filter=fil("msv", "<=", maxx)) \
-                                              .where(filter=fil("name", ">=", name)) \
-                                              .where(filter=fil("name", "<=", maxx2)) \
-                                              .stream()
+            dt = controller.find(msv, name)
+            print(dt)
             st.session_state.df_value = parse_data(dt)
             st.session_state.ctr = 0
-            callb("display_home")
-            time.sleep(1.5)
+            callb("home")
+            time.sleep(1)
             st.rerun() 
             
     search()
@@ -384,27 +285,32 @@ def sec1():
     def delete(checked: pd.DataFrame):  
      
       if st.button("Xác nhận"):
-        for i in checked:
-          db.collection('face_dataset').document(i).delete()
+        print(checked)
+        controller.delete(checked)
         st.session_state.ctr = 1
-        callb("display_home")
+        callb("home")
         st.toast("Xóa thành công", icon=":material/check:")
-        time.sleep(1.5)
+        time.sleep(1)
         st.rerun()
       else:
-        callb("display_home")
+        callb("home")
     
     checked = tb[tb["checkbox"] == True]["id"].tolist()
     if len(checked) == 0:
       st.toast("Chọn ít nhất một dòng để xóa", icon=":material/warning:")
     else:
-      callb("display_home")
+      callb("home")
       delete(checked)
-      callb("display_home")
-  elif st.session_state.display_home:
-    callb("empty")
+      callb("home")
+  elif st.session_state.home:
+    for key in tools_key:
+      if key.startswith("display"):
+        st.session_state[key] = False
+    st.session_state.home = False
+    st.rerun()
+  elif st.session_state.empty:
+    st.session_state.empty = False
     st.cache_data.clear()
-    # Reset
     st.session_state.ctr = 1
     st.rerun()
 
@@ -425,37 +331,35 @@ def sec2():
     cols = st.columns(2)
     cols[0] = cols[0].file_uploader("Ảnh thẻ sinh viên", type=["jpg", "png", "jpeg"], accept_multiple_files=False, help="Upload an image")
     cols[1] = cols[1].file_uploader("Ảnh chân dung", type=["jpg", "png", "jpeg"], accept_multiple_files=False, help="Upload an image")
-    conf = st.slider("Confidence threshold cho phát hiện khuôn mặt", min_value=0.1, max_value=1.0, value=0.85, step=0.05)
+    # conf = st.slider("Confidence threshold cho phát hiện khuôn mặt", min_value=0.1, max_value=1.0, value=0.85, step=0.05)
     submit = st.form_submit_button("Xác thực", use_container_width=True)
     if submit:
       if cols[0] and cols[1]:
-        detector = load_detector(conf)
-        regc = load_recognizer()
-        
-        card = Image.open(cols[0])
-        chandung = Image.open(cols[1])
-        card = cv.cvtColor(np.array(card), cv.COLOR_RGB2BGR)
-        chandung = cv.cvtColor(np.array(chandung), cv.COLOR_RGB2BGR)
-        # h, w = card.shape[:2]
-        max_width = 640
-        scale = max_width / chandung.shape[1]
-        chandung = cv.resize(chandung, (max_width, int(chandung.shape[0] * scale)))
-        
-        ver = Verification(detector, regc)
-        ver.set_card(card)
-        ver.set_selfie(chandung)
-        card_face, fac, score, matches = ver.verify_card()
-        
-        # sf, car = ver.visualize()
-        if card_face is not None:
-          sf, car = ver.visualize(img1=card, faces1=card_face, img2=chandung, faces2=fac, matches=matches, scores=score)
+        with st.spinner('Dang xu li'):
+          detector = load_detector(0.85)
+          regc = load_recognizer()
           
-          col2 = st.columns(2)
-          col2[1].image(sf, caption="Ảnh chân dung", channels="BGR")
-          col2[0].image(car, caption="Ảnh thẻ sinh viên", channels="BGR")
-        else:
-          st.toast("Không tìm thấy khuôn mặt", icon=":material/warning:")
-          time.sleep(1)
+          card = Image.open(cols[0])
+          chandung = Image.open(cols[1])
+          card = cv.cvtColor(np.array(card), cv.COLOR_RGB2BGR)
+          chandung = cv.cvtColor(np.array(chandung), cv.COLOR_RGB2BGR)
+          # h, w = card.shape[:2]
+          
+          ver = Verification(detector, regc)
+          ver.set_card(card)
+          ver.set_selfie(chandung)
+          card_face, fac, score, matches = ver.verify_card()
+          
+          # sf, car = ver.visualize()
+          if card_face is not None:
+            sf, car = ver.visualize(img1=ver.card_number, faces1=card_face, img2=ver.selfie, faces2=fac, matches=matches, scores=score)
+            
+            col2 = st.columns(2)
+            col2[1].image(sf, caption="Ảnh chân dung", channels="BGR")
+            col2[0].image(car, caption="Ảnh thẻ sinh viên", channels="BGR")
+          else:
+            st.toast("Không tìm thấy khuôn mặt", icon=":material/warning:")
+            time.sleep(1)
       else:
         st.toast("Vui lòng cung cấp đủ ảnh", icon=":material/warning:")
         time.sleep(1)
@@ -487,11 +391,18 @@ def sec3():
           det.setInputSize((img.shape[1], img.shape[0]))
           feature = det.infer(img)
           features = []
+          _img = img.copy()
+          
           for dd in feature:
             features.append(regc.infer(img, bbox=dd[:-1]))
+            face_box = dd[0:4].astype(np.int32)
+            _img = cv.rectangle(_img,
+                                (face_box[0], face_box[1]),
+                                (face_box[0] + face_box[2], face_box[1] + face_box[3]),
+                                (0, 0, 255),
+                                2)
           features = np.asarray(features)
-          _img = img.copy()
-          # print("Im", feature)
+
           for sv in st.session_state.df_value.iterrows():
             sv = sv[1]
             i = 0
@@ -505,10 +416,9 @@ def sec3():
                   bbox = feature[i][0:4].astype(np.int32)
                   msv = sv["msv"]
               i += 1
+
             i = 0
-            max_score, bbox, msv = 0, None, None
             for det in features:
-              # print("DETT", det, sv["feature_chandung"])
               mark, lb = regc.match_f(np.array([sv["feature_chandung"]], dtype=np.float32), det)
               print(mark, lb)
               if lb == 1:
@@ -520,11 +430,10 @@ def sec3():
             if bbox is not None:
               p.append(sv['msv'])
               _img = cv.rectangle(_img, (bbox[0], bbox[1]), (bbox[0]+bbox[2], bbox[1]+bbox[3]), (0, 255, 0), 2)
-              _img = cv.putText(_img, msv, (bbox[0], bbox[1]), cv.FONT_HERSHEY_SIMPLEX, 1, (0,0 , 255), 2)
+              _img = cv.putText(_img, msv, (bbox[0], bbox[1]), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
           st.write("Danh sách sinh viên có mặt trong lớp: ")
           st.write(pd.DataFrame(np.unique(p), columns=["msv"], index=np.arange(1, len(np.unique(p))+1)))
-          # for i in np.unique(p):
-            # s(i)
+          
         st.image(_img, channels="BGR", use_column_width=True)
 
 sec3()
