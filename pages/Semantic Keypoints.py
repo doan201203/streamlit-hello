@@ -41,7 +41,7 @@ col2[1].markdown("""
 import pickle
 def make_data(lb, dat):
   return {
-    'Type Shape': lb,
+    'Type Shape': lb.split('_')[1],
     'Precision': dat[0],
     'Recall': dat[1],
   }
@@ -121,7 +121,7 @@ st.markdown("""
             """, unsafe_allow_html=True)
 def make_data(lb, dat1, det):
   return {
-    'Type Shape': lb,
+    'Type Shape': lb.split('_')[1],
     'Precision': dat1[0],
     'Recall': dat1[1],
     'Type': det
@@ -139,8 +139,8 @@ col = st.columns(2)
 ch = alt.Chart(df).mark_bar().encode(
     x='Type Shape',
     y='Recall',
-    
-    color='Type'
+    xOffset="Type:N",
+    color='Type:N'
 ).properties(
     title='Recall của SIFT và ORB theo từng loại hình'
 )
@@ -148,8 +148,8 @@ col[0].altair_chart(ch, use_container_width=True)
 ch = alt.Chart(df).mark_bar().encode(
     x='Type Shape',
     y='Precision',
-    
-    color='Type'
+    xOffset="Type:N",
+    color='Type:N'
 ).properties(
     title='Precision của SIFT và ORB theo từng loại hình'
 )
