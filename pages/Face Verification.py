@@ -264,8 +264,8 @@ def sec1():
         with st.form(key="search") as search_form:
           # st.write("Search")
           st.markdown("""
-                      - Những thông tin không chắc chắn có thể thay thế bằng kí tự ' * '.
-                      - Ví dụ: 21T*036, *036, 21T1* .
+                      - Những thông tin không chắc chắn có thể thay thế bằng kí tự ' \* '.
+                      - Ví dụ: 21T*306, \*306, 21T1\* .
                       """)
           msv, name = st.columns(2)
           msv = msv.text_input("MSV")
