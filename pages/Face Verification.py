@@ -28,7 +28,6 @@ tools_key = [
   "empty",
 ]
 
-# app = fa.initialize_app()
 
 @st.cache_resource(show_spinner=False, ttl=3600)
 def connect():
@@ -243,7 +242,6 @@ def sec1():
             chan_dung = cols[1].file_uploader("ChanDung", type=["jpg", "png", "jpeg"], accept_multiple_files=False, help="Upload an image")
             col = st.form_submit_button("Xác nhận", use_container_width=True)
             id = data.get("id")
-            print(id)
             if col:
               with st.spinner("Đang xử lí"):
                 sts = controller.update(id, msv if msv else None, name if name else None, the_sv, chan_dung)
@@ -264,7 +262,11 @@ def sec1():
     def search():
       with sec11:
         with st.form(key="search") as search_form:
-          st.write("Search")
+          # st.write("Search")
+          st.markdown("""
+                      - Những thông tin không chắc chắn có thể thay thế bằng kí tự ' * '.
+                      - Ví dụ: 21T*036, *036, 21T1* .
+                      """)
           msv, name = st.columns(2)
           msv = msv.text_input("MSV")
           name = name.text_input("Name")

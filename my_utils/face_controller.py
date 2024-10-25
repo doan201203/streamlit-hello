@@ -6,6 +6,7 @@ from streamlit.runtime.uploaded_file_manager import UploadedFile
 from miscs.face_models.yunet import YuNet
 from miscs.face_models.sface import SFace
 from google.cloud import firestore
+import re, unicodedata
 
 class FaceController:
   def __init__(self, dbname) -> None:
@@ -150,13 +151,32 @@ class FaceController:
     return tb
 
   def find(self, msv: str, name: str):
+    def remove_accents(input_str):
+      nfkd_form = unicodedata.normalize('NFKD', input_str)
+      return u"".join([c for c in nfkd_form if not unicodedata.combining(c)])
+    
     docs = self.db.get_all()
     results = {}
     
+    msv = '.*' + re.sub(
+                        r'\s+', '', remove_accents(
+                                                    msv.replace('*', '.*').strip()
+                                                  ).lower()
+                        ) + '.*'
+    
+    name = '.*' + re.sub(
+                          r'\s+', '', remove_accents(
+                                                      name.replace('*', '.*').strip()
+                                                    ).lower()
+                        ) + '.*'
+        
     for doc in docs:
       dat = doc.to_dict()
-      m1 = (msv == "") or (str(dat['msv']).lower().find(msv.lower()) != -1)
-      m2 = (name == "") or (str(dat['name']).lower().find(name.lower()) != -1)
+      dat_msv = re.sub(r'\s+', '', remove_accents(dat['msv']).lower())
+      dat_name = re.sub(r'\s+', '', remove_accents(dat['name']).lower())
+
+      m1 = (msv == "") or (re.match(msv, dat_msv) is not None)
+      m2 = (name == "") or (re.match(name, dat_name) is not None)
       if m1 and m2:
         results[doc.id] = dat
 

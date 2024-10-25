@@ -23,7 +23,7 @@ def run():
         page_title="Truong Doan",
         page_icon="👋",
     )
-
+    # st.set_page_config()
     st.write("# Welcome to Doan's OpenCV Application! 👋")
 
     # img = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], accept_multiple_files=False)
