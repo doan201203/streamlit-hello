@@ -67,8 +67,6 @@ def display_search():
             if img.shape[1] > max_width:
                scale = max_width / img.shape[1]
                img = cv.resize(img, (int(img.shape[1] * scale), int(img.shape[0] * scale)))
-            
-
             idx, conf = cbri.top_k(img, K)
 
             for i in range(K):
