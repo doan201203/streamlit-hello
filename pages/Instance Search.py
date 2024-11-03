@@ -68,9 +68,9 @@ def display_search():
                scale = max_width / img.shape[1]
                img = cv.resize(img, (int(img.shape[1] * scale), int(img.shape[0] * scale)))
             
+
             idx, conf = cbri.top_k(img, K)
 
-            # col = st.columns(K)
             for i in range(K):
                st.image(cbri.db[idx[i]], caption='Cosine Similarity {}'.format(conf[i]), channels='BGR')
 display_search()
