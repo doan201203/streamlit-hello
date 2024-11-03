@@ -12,3 +12,5 @@ matplotlib
 google-cloud-firestore
 google-cloud-storage
 streamlit-sync
+torch==2.4.0
+faiss
