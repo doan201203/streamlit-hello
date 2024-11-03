@@ -169,7 +169,12 @@ class FaceController:
                                                       name.replace('*', '.*').strip()
                                                     ).lower()
                         ) + '.*'
-        
+    
+    while '**' in msv:
+      msv = msv.replace('**', '*')
+    while '**' in name:
+      name = name.replace('**', '*')
+    
     for doc in docs:
       dat = doc.to_dict()
       dat_msv = re.sub(r'\s+', '', remove_accents(dat['msv']).lower())
