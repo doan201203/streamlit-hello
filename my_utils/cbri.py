@@ -4,13 +4,21 @@ import numpy as np
 from scipy.cluster.vq import vq
 import cv2
 from numpy.linalg import norm
+import pickle
 
 class CBRI:
     def __init__(self):
         self.detector = SuperPointFrontend(weights_path='./my_utils/superpoint_v1.pth', nms_dist=4, conf_thresh=0.015, nn_thresh=0.7)
-        self.kmeans = np.load('./my_utils/centroids.npy')
-        self.idf = np.load('./my_utils/idf.npy')
-        self.tfidf = np.load('./my_utils/tfidf.npy')
+        with open('./my_utils/kmean.pkl', 'rb') as f:
+          self.kmeans = pickle.load(f)
+
+        with open('./my_utils/idf.pkl', 'rb') as f:
+          self.idf = pickle.load(f)
+        with open('./my_utils/tfidf.pkl', 'rb') as f:
+          self.tfidf = pickle.load(f)
+        
+        with open('./my_utils/db.pkl', 'rb') as f:
+          self.db = pickle.load(f)
         
     def embed(self, img):
       if len(img.shape) == 3:
@@ -30,5 +38,5 @@ class CBRI:
       b = self.tfidf
       cos = np.dot(emb, b.T) / (norm(emb) * norm(b, axis=1))
       idx = np.argsort(-cos)[:k]
-      
-    
+      conf = cos[idx]
+      return idx, conf
