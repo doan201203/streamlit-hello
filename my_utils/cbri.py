@@ -14,6 +14,7 @@ class CBRI:
 
         with open('./my_utils/idf.pkl', 'rb') as f:
           self.idf = pickle.load(f)
+          
         with open('./my_utils/tfidf.pkl', 'rb') as f:
           self.tfidf = pickle.load(f)
         
