@@ -39,6 +39,7 @@ def display_methods():
                     - Xây dựng bag of visual word (BOVW) mục tiêu là biến đổi các đặc trưng của hình ảnh thành một tập hợp các từ đại diện (visual words), sau đó tạo thành một biểu diễn histogram.
             """)
    st.image('./images/bovw.png', caption='Bag of Visual Word')
+   
    st.markdown("""
              - Compare:
                - Sử dụng cosine similarity để so sánh vector đặc trưng của ảnh.
