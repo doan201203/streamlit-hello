@@ -13,6 +13,7 @@ st.write("""
             - Một số hình ảnh trong tập dữ liệu.
          """)
 
+
 @st.cache_resource(show_spinner=False)
 def get_db_image():
     cbri = CBRI()
