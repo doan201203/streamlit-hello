@@ -172,53 +172,53 @@ def table_result():
   
 table_result()
 
-# tb = {
-#   'metric': [],
-#   'k': [],
-#   'Average IoU': []
-# }
+tb = {
+  'metric': [],
+  'k': [],
+  'Average IoU': []
+}
 
-# def train():
-#   for k in range(1, 52, 4):
-#     for metric in ['euclidean', 'cosine', 'manhattan']:
-#       haar_features = load_data('./datasets/faces_and_non_faces_data/output/cascade.xml')
-#       X, y = haar_features.X, haar_features.y
-#       classifier = KNeighborsClassifier(n_neighbors=k, metric=metric, weights='distance')
-#       classifier.fit(X, y)
-#       ave = 0
-#       print(k, metric)
-#       for i in range(10):
-#         test_img_dir = './datasets/faces_and_non_faces_data/test/'
-#         imgs = os.listdir(os.path.join(test_img_dir, 'images'))
-#         labels = os.listdir(os.path.join(test_img_dir, 'annotations'))
-#         imgs.sort()
-#         labels.sort()
-#         img = cv.imread(os.path.join(test_img_dir, 'images', imgs[i]))
-#         gray = img.copy()
-#         if len(img.shape) == 3:
-#           gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-#         # print(k, metric, imgs[i])
-#         faces = haar_features.detect_faces_multiscale(gray, classifier, 1.3, 0, (24, 24), 24)
-#         mark1 = np.zeros(img.shape[:2], dtype=np.uint8)
-#         mark2 = np.zeros(img.shape[:2], dtype=np.uint8)
-#         with open(os.path.join(test_img_dir, 'annotations', labels[i]), 'r') as f:
-#           for line in f:
-#             line = line.split()
-#             x, y, w, h = map(int, line)
-#             #fill rectange with white color
-#             mark1[y:y+h, x:x+w] = 255
-#             # cv.rectangle(mark1, (x, y), (x+w, y+h), 255, -1)
-#         for x, y, w, h in faces:
-#           mark2[y:y+h, x:x+w] = 255
-#           # cv.rectangle(mark2, (x, y), (x+w, y+h), 255, -1)
-#         iou_score = iou(mark1, mark2)
-#         ave += iou_score
-#       print("SUCCSED", ave)
-#       tb['metric'].append(metric)
-#       tb['k'].append(k)
-#       tb['Average IoU'].append(ave/10)       
-#   with open('knn_result.pkl', 'wb') as f:
-#     pickle.dump(tb, f)
+def train():
+  for k in range(1, 52, 4):
+    for metric in ['euclidean', 'cosine', 'manhattan']:
+      haar_features = load_data('./datasets/faces_and_non_faces_data/output/cascade.xml')
+      X, y = haar_features.X, haar_features.y
+      classifier = KNeighborsClassifier(n_neighbors=k, metric=metric, weights='distance')
+      classifier.fit(X, y)
+      ave = 0
+      print(k, metric)
+      for i in range(10):
+        test_img_dir = './datasets/faces_and_non_faces_data/test/'
+        imgs = os.listdir(os.path.join(test_img_dir, 'images'))
+        labels = os.listdir(os.path.join(test_img_dir, 'annotations'))
+        imgs.sort()
+        labels.sort()
+        img = cv.imread(os.path.join(test_img_dir, 'images', imgs[i]))
+        gray = img.copy()
+        if len(img.shape) == 3:
+          gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        # print(k, metric, imgs[i])
+        faces = haar_features.detect_faces_multiscale(gray, classifier, 1.3, 0, (24, 24), 24)
+        mark1 = np.zeros(img.shape[:2], dtype=np.uint8)
+        mark2 = np.zeros(img.shape[:2], dtype=np.uint8)
+        with open(os.path.join(test_img_dir, 'annotations', labels[i]), 'r') as f:
+          for line in f:
+            line = line.split()
+            x, y, w, h = map(int, line)
+            #fill rectange with white color
+            mark1[y:y+h, x:x+w] = 255
+            # cv.rectangle(mark1, (x, y), (x+w, y+h), 255, -1)
+        for x, y, w, h in faces:
+          mark2[y:y+h, x:x+w] = 255
+          # cv.rectangle(mark2, (x, y), (x+w, y+h), 255, -1)
+        iou_score = iou(mark1, mark2)
+        ave += iou_score
+      print("SUCCSED", ave)
+      tb['metric'].append(metric)
+      tb['k'].append(k)
+      tb['Average IoU'].append(ave/10)       
+  with open('knn_result.pkl', 'wb') as f:
+    pickle.dump(tb, f)
 # train()
 
 

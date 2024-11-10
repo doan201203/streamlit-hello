@@ -57,8 +57,7 @@ def visualize_result():
   with open('./datasets/sythetic/result_matching.pkl', 'rb') as f:
     df = pickle.load(f)
   df = pd.DataFrame(df)
-  # df['Method'] = df['Method'].map({1: 'SIFT', 2: 'ORB', 3: 'SuperPoint'})
-    
+  print (df)    
   ch = alt.Chart(df).mark_line().encode(
         alt.X('Angle', title='Angle'),
         alt.Y('Accuracy', title='Accuracy'),

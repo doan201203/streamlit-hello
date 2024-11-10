@@ -9,7 +9,7 @@ st.title('Instance Search')
 
 st.header('1. Dataset')
 st.write("""
-            - Trích từ bộ dữ liệu COCO-2017 với đối tượng ***Vehicle*** gồm 1160 ảnh phương tiện được chia thành 8 class ["bicycle", "car", "motorcycle","airplane", "bus", "train", "truck", "boat"].
+            - Trích từ bộ dữ liệu COCO-2017 gồm 1160 ảnh được chia thành 8 class ["bicycle", "car", "motorcycle","airplane", "bus", "train", "truck", "boat"].
             - Một số hình ảnh trong tập dữ liệu.
          """)
 
@@ -26,8 +26,8 @@ def display_db_image():
     for i in range(4):
         col[i].image(cbri.db[i], caption='Image {}'.format(i))
     col = st.columns(4)
-    for i in range(8, 12):
-        col[i-8].image(cbri.db[i], caption='Image {}'.format(i))
+    for i in range(20, 24):
+        col[i-20].image(cbri.db[i], caption='Image {}'.format(i))
 display_db_image()
 
 st.header('2. Methods')
@@ -47,9 +47,9 @@ def display_methods():
                - $cosine = \\frac{a.b}{||a||.||b||}$
             """)
 display_methods()
-st.header('3. Evaluation')
-st.header('4. Results')
-st.header('5. Application')
+# st.header('3. Evaluation')
+# st.header('4. Results')
+st.header('3. Application')
 
 @st.fragment
 def display_search():
@@ -64,11 +64,6 @@ def display_search():
          st.image(img, caption='Uploaded Image')
          if submit_button:
             img = np.array(img)
-            max_width = 640
-            
-            if img.shape[1] > max_width:
-               scale = max_width / img.shape[1]
-               img = cv.resize(img, (int(img.shape[1] * scale), int(img.shape[0] * scale)))
             idx, conf = cbri.top_k(img, K)
 
             for i in range(K):
