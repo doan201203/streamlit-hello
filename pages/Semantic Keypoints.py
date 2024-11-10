@@ -8,7 +8,7 @@ import numpy as np
 import altair as alt
 import pandas as pd
 
-st.set_page_config(page_title="Semantic Keypoints", layout="wide")
+st.set_page_config(page_title="Semantic Keypoints")
 st.header('1. Dataset', divider=True)
 st.markdown("""
                 - Thu thập từ Synthetic Shapes Dataset.
@@ -29,36 +29,16 @@ display_dataset('sample')
 st.header('2. Methods')
 
 import pickle
-def make_data(lb, dat):
-  return {
-    'Type Shape': lb.split('_')[1],
-    'Precision': dat[0],
-    'Recall': dat[1],
-  }
-  
 with open('./datasets/sythetic/sift.pk', 'rb') as f:
   sift = pickle.load(f)
 with open('./datasets/sythetic/orb.pk', 'rb') as f:
   orb = pickle.load(f)
   
-print("CC", sift['draw_cube'])
-df1 = []
-df2 = []
-for i, j in sift.items():
-    # print(i, j)
-    df1.append(make_data(i, j))
-for i, j in orb.items():
-    df2.append(make_data(i, j))
-
-df1 = pd.DataFrame(df1)
-df2 = pd.DataFrame(df2)
-
-
 st.subheader('2.1. SIFT', divider=True)
 col2 = st.columns(2)
 
 col2[0].markdown("""
-            - [SIFT (Scale-Invariant Feature Transform)](https://link.springer.com/article/10.1023/B:VISI.0000029664.99615.94) được thiết kế để phát hiện và mô tả các đặc trưng (features) cục bộ trong hình ảnh. Được phát triển bởi David Lowe , nó đã trở thành một trong những thuật toán được sử dụng rộng rãi nhất để phát hiện đặc trưng, nhận dạng đối tượng và khớp hình ảnh do tính mạnh mẽ của nó trong việc xử lý tỷ lệ, xoay và những thay đổi nhỏ về độ sáng hoặc góc nhìn.
+            - Được công bố lần đầu ở bài báo [SIFT (Distinctive Image Features from Scale-Invariant Keypoints)](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=cc58efc1f17e202a9c196f9df8afd4005d16042a) được thiết kế để phát hiện và mô tả các đặc trưng (features) cục bộ trong hình ảnh. Được phát triển bởi David Lowe , nó đã trở thành một trong những thuật toán được sử dụng rộng rãi nhất để phát hiện đặc trưng, nhận dạng đối tượng và khớp hình ảnh do tính mạnh mẽ của nó trong việc xử lý tỷ lệ, xoay và những thay đổi nhỏ về độ sáng hoặc góc nhìn.
             """)
 col2[1].image('./datasets/sythetic/sift_pl.jpg', use_column_width=True, caption='Các bước phát hiện keypoints của SIFT')
 st.markdown("""
@@ -105,9 +85,9 @@ def make_data(lb, dat1, det):
 
 df = []
 for i, j in sift.items():
-    df.append(make_data(i, j, 'SIFT'))
+    df.append(make_data(i, j[0], 'SIFT'))
 for i, j in orb.items():
-    df.append(make_data(i, j, 'ORB'))
+    df.append(make_data(i, j[0], 'ORB'))
 
 df = pd.DataFrame(df)
 col = st.columns(2)
@@ -130,14 +110,41 @@ ch = alt.Chart(df).mark_bar().encode(
     title='Precision của SIFT và ORB theo từng loại hình'
 )
 col[1].altair_chart(ch, use_container_width=True)
+st.markdown("""
+            - Qua biểu đồ ***Recall*** ORB cho kết quả tốt hơn SIFT trên các tập hình ***checkerboard, cube, polygon, star***.
+            - Tuy nhiên với ***Precision*** trên tập hình ***cube, star*** SIFT thể hiện tốt hơn ORB.  
+            """)
 # st.write(df)
 
-st.header('5. Kết luận', divider=True)
-st.markdown("""
-            - Có thể dễ dàng thấy được, các keypoints được ORB phát hiện chủ yếu tập trung ở các vùng chênh lệch cường độ sáng, còn SIFT thì phân bố rộng rãi hơn (xem hình dưới) vì thế kết quả của ORB trên một số tập hình có sự chênh lệch cường độ sáng như checker_board, cube cao hơn nhiều so với SIFT.
-            """)
+st.header('5. Thảo luận', divider=True)
 
-col2 = st.columns(2)
-col2[0].image('./datasets/sythetic/ORB/checker_board.png', 'ORB')
-col2[1].image('./datasets/sythetic/SIFT/checker_board.png','SIFT')
+st.markdown("""
+                - Trên tập hình ***checkerboard, polygon, multiple_polygon*** các keypoints thường tập trung ở các góc của hình. ORB phát hiện keypoints dựa trên thuật toán FAST bằng cách xem xét độ sáng điểm ảnh xung quanh một khu vực nhất định, nên nó thường nhận diện tốt các điểm đặc trưng trên những dạng hình này.
+
+                """)
+
+col2 = st.columns(2) 
+col2[0].write(''' - Kết quả minh họa của ORB''')
+col2[1].write(''' - Kết quả minh họa của SIFT''')
+
+col3 = st.columns(2)
+col3[0].image('./datasets/sythetic/results/polygon_1.png', caption='Kết quả của tập hình polygon với số keypoints được phát hiện = 4, precision = 0.5, recall = 0.66', use_column_width=True)
+col3[1].image('./datasets/sythetic/results/polygon_2.png', caption='Kết quả của tập hình polygon với số keypoints được phát hiện = 7, precision = 0., recall = 0.', use_column_width=True)
+
+col3[0].image('./datasets/sythetic/results/check_1.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 34, precision = 0.1176, recall = 0.25', use_column_width=True)
+col3[1].image('./datasets/sythetic/results/check_2.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 13, precision = 0.0769, recall = 0.0625', use_column_width=True)
+
+col3[0].image('./datasets/sythetic/results/line_1.png', caption='Kết quả của tập hình lines với số keypoints được phát hiện = 24, precision = 0.0833, recall = 0.25', use_column_width=True)
+col3[1].image('./datasets/sythetic/results/line_2.png', caption='Kết quả của tập hình lines với số keypoints được phát hiện = 7, precision = 0.7142, recall = 0.625', use_column_width=True)
+
+st.write("""
+        - Giải thích cho lí do ***Recall*** của ORB cao hơn trên tập hình star nhưng ***Precision*** lại thấp hơn là vì:
+            - ORB phát hiện được số lượng keypoints nhiều hơn so với SIFT trên tập hình này, dẫn đến việc có nhiều điểm dự đoán đúng hơn (true positives), làm tăng Recall. Tuy nhiên, do phát hiện nhiều điểm hơn, ORB cũng tạo ra nhiều điểm nhiễu (false positives) hơn, khiến Precision giảm xuống so với SIFT.
+         """)
+
+col3 = st.columns(2)
+col3[0].image('./datasets/sythetic/results/st_1.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 15, precision = 0.2, recall = 0.75', use_column_width=True)
+col3[1].image('./datasets/sythetic/results/st_2.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 2, precision = 1., recall = 0.5', use_column_width=True)
+
+
 
