@@ -45,7 +45,6 @@ st.markdown("""
         - Minh họa kết quả dựa trên thuật toán SIFT.
         """, unsafe_allow_html=True)
 display_dataset('SIFT')
-col2 = st.columns(2)
 
 st.subheader('2.2. ORB', divider=True)
 col2 = st.columns(2)
