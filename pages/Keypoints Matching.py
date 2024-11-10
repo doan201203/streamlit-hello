@@ -68,11 +68,18 @@ def visualize_result():
   st.altair_chart(ch, use_container_width=True)
 visualize_result()
 
-st.write("""- Minh họa quá trình matching trên SuperPoint theo từng góc quay""")
+st.write("""- Minh họa quá trình matching trên SuperPoint theo từng góc quay trên tập hình ***checkerboard***""")
 col = st.columns(3)
-col[0].image('./datasets/sythetic/keypoints_matching/spp_10.png', caption='Xoay 10', use_column_width=True)
-col[1].image('./datasets/sythetic/keypoints_matching/spp_30.png', caption='Xoay 30', use_column_width=True)
-col[2].image('./datasets/sythetic/keypoints_matching/spp_50.png', caption='Xoay 50', use_column_width=True)
+col[0].image('./datasets/sythetic/keypoints_matching/spp_10.png', caption='Xoay 10, số lượng keypoints khớp chính xác 28/32', use_column_width=True)
+col[1].image('./datasets/sythetic/keypoints_matching/spp_20.png', caption='Xoay 20, số lượng keypoints khớp chính xác = 23/32', use_column_width=True)
+col[2].image('./datasets/sythetic/keypoints_matching/spp_30.png', caption='Xoay 30, số lượng keypoints khớp chính xác 16/32', use_column_width=True)
+
+st.write("""- Minh họa quá trình matching trên SuperPoint theo từng góc quay trên tập hình ***multiple_polygon***""")
+col = st.columns(3)
+col[0].image('./datasets/sythetic/keypoints_matching/spp_10_1.png', caption='Xoay 10, số lượng keypoints khớp chính xác 14/22', use_column_width=True)
+col[1].image('./datasets/sythetic/keypoints_matching/spp_10_2.png', caption='Xoay 20, số lượng keypoints khớp chính xác = 13/22', use_column_width=True)
+col[2].image('./datasets/sythetic/keypoints_matching/spp_10_3.png', caption='Xoay 30, số lượng keypoints khớp chính xác 10/22', use_column_width=True)
+
 
 st.header('5. Discussion')
 st.write("""
