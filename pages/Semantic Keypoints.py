@@ -110,17 +110,35 @@ ch = alt.Chart(df).mark_bar().encode(
 )
 col[1].altair_chart(ch, use_container_width=True)
 st.markdown("""
-            - Qua biểu đồ ***Recall*** ORB cho kết quả tốt hơn SIFT trên các tập hình ***checkerboard, cube, polygon, star***.
-            - Tuy nhiên với ***Precision*** trên tập hình ***cube, star*** SIFT thể hiện tốt hơn ORB.  
-            """)
+
+### Nhận xét kết quả so khớp Keypoint giữa SIFT và ORB
+
+#### 1. **Recall của SIFT và ORB**
+- **ORB vượt trội hơn SIFT** ở hầu hết các loại hình, đặc biệt là:
+  - **Cube**, **Star**, **Checkboard**: ORB có Recall cao (~0.58, ~0.69, ~0.4), trong khi ORB thấp hơn đáng kể (~0.26, ~0.43, ~0.25).
+  - **Polygon**: ORB đạt gần (~0.7), trong khi ORB hầu như không có kết quả (~0.05).
+- **SIFT tốt hơn ORB** trong một vài trường hợp như:
+  - **Lines** và **Stripes**: SIFT có Recall cao hơn (~0.33, ~0.27), còn ORB chỉ đạt khoảng (~0.29, ~0.07).
+- **Loại hình Multiple**: Cả hai phương pháp đều có kết quả thấp, nhưng ORB vẫn nhỉnh hơn.
+
+#### 2. **Precision của SIFT và ORB**
+- **ORB vượt trội hơn SIFT** trong nhiều trường hợp, đặc biệt:
+  - **Polygon**: ORB đạt Precision cao nhất (~0.44), trong khi SIFT thấp hơn đáng kể.
+  - **Star**: SIFT cũng vượt trội với Precision cao (~0.42), còn ORB chỉ đạt mức trung bình.
+  - **Multiple**: SIFT có kết quả tốt hơn ORB nhưng không quá vượt trội.
+- **SIFT có kết quả tốt hơn hoặc gần tương đương với ORB** ở:
+  - **Lines**, **Star**, **Stripes**: khoảng (0.36-0.38 và ~0.20) so với (0.24-0.28 và ~0.05). 
+  - **Cube**: Precision của cả hai gần bằng nhau (~0.18-0.2).            """)
 # st.write(df)
 
 st.header('5. Thảo luận', divider=True)
 
 st.markdown("""
                 - Trên tập hình ***checkerboard, polygon, multiple_polygon*** các keypoints thường tập trung ở các góc của hình. ORB phát hiện keypoints dựa trên thuật toán FAST bằng cách xem xét độ sáng điểm ảnh xung quanh một khu vực nhất định, nên nó thường nhận diện tốt các điểm đặc trưng trên những dạng hình này.
-
-                """)
+                - Dưới đây là một số hình minh họa kết quả của 2 thuật toán:
+                    - <span style="color:green">Màu xanh</span>: những điểm Ground Truth.
+                    - <span style="color:red">Màu đỏ</span>: những điểm keypoint mà thuật toán phát hiện được.
+                """, unsafe_allow_html=True)
 
 col2 = st.columns(2) 
 col2[0].write(''' - Kết quả minh họa của ORB''')
@@ -137,13 +155,22 @@ col3[0].image('./datasets/sythetic/results/line_1.png', caption='Kết quả c�
 col3[1].image('./datasets/sythetic/results/line_2.png', caption='Kết quả của tập hình lines với số keypoints được phát hiện = 7, precision = 0.7142, recall = 0.625', use_column_width=True)
 
 st.write("""
-        - Giải thích cho lí do ***Recall*** của ORB cao hơn trên tập hình star nhưng ***Precision*** lại thấp hơn là vì:
-            - ORB phát hiện được số lượng keypoints nhiều hơn so với SIFT trên tập hình này, dẫn đến việc có nhiều điểm dự đoán đúng hơn (true positives), làm tăng Recall. Tuy nhiên, do phát hiện nhiều điểm hơn, ORB cũng tạo ra nhiều điểm nhiễu (false positives) hơn, khiến Precision giảm xuống so với SIFT.
+        - Giải thích cho lí do ***Recall*** của ORB cao hơn trên tập hình star, Cube, checkerboard là vì:
+            - ORB phát hiện được số lượng keypoints nhiều hơn so với SIFT trên tập hình này, dẫn đến việc có nhiều điểm dự đoán đúng hơn (true positives), làm tăng Recall. Tuy nhiên, do phát hiện nhiều điểm hơn, ORB cũng tạo ra nhiều điểm nhiễu (false positives) hơn, đây cũng là lí do khiến Precision giảm xuống so với SIFT trong hầu hết các tập hình.
          """)
 
 col3 = st.columns(2)
 col3[0].image('./datasets/sythetic/results/st_1.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 15, precision = 0.2, recall = 0.75', use_column_width=True)
 col3[1].image('./datasets/sythetic/results/st_2.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 2, precision = 1., recall = 0.5', use_column_width=True)
+
+col3[0].image('./datasets/sythetic/results/st_3.png', caption='Kết quả của tập hình Cube với số keypoints được phát hiện = 8, precision = 0.5, recall = 0.57', use_column_width=True)
+col3[1].image('./datasets/sythetic/results/st_4.png', caption='Kết quả của tập hình Cube với số keypoints được phát hiện = 2, precision = 0., recall = 0.', use_column_width=True)
+
+
+col3[0].image('./datasets/sythetic/results/st_5.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 97, precision = 0.15, recall = 0.46', use_column_width=True)
+col3[1].image('./datasets/sythetic/results/st_6.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 50, precision = 0.2, recall = 0.31', use_column_width=True)
+
+
 
 
 

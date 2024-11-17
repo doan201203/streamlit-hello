@@ -24,10 +24,10 @@ cbri = get_db_image()
 def display_db_image():
     col = st.columns(4)
     for i in range(4):
-        col[i].image(cbri.db[i], caption='Image {}'.format(i))
+        col[i].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
     col = st.columns(4)
     for i in range(20, 24):
-        col[i-20].image(cbri.db[i], caption='Image {}'.format(i))
+        col[i-20].image(cbri.db[i], caption='Image {}'.format(i), channels='RGB')
 display_db_image()
 
 st.header('2. Methods')
@@ -38,7 +38,6 @@ def display_methods():
                 - Cluster features:
                     - Xây dựng bag of visual word (BOVW) mục tiêu là biến đổi các đặc trưng của hình ảnh thành một tập hợp các từ đại diện (visual words), sau đó tạo thành một biểu diễn histogram.
             """)
-   st.image('./images/bovw.png', caption='Bag of Visual Word')
    
    st.markdown("""
              - Compare:
@@ -46,6 +45,7 @@ def display_methods():
                - Công thức tính cosine similarity giữa 2 vector a và b:
                - $cosine = \\frac{a.b}{||a||.||b||}$
             """)
+   st.image('./images/bovw.png', caption='Pipeline quá trình tìm kiếm')
 display_methods()
 # st.header('3. Evaluation')
 # st.header('4. Results')
