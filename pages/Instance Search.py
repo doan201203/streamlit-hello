@@ -14,7 +14,7 @@ st.write("""
          """)
 
 
-@st.cache_resource(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl="10m")
 def get_db_image():
     cbri = CBRI()
     return cbri
