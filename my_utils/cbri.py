@@ -26,7 +26,8 @@ class CBRI:
     def docf(self):
       wd = './datasets/coco17'
       img = []
-      for x in os.listdir(wd):
+      print(sorted(os.listdir(wd), key=lambda x: int(x.split('.')[0])))
+      for x in sorted(os.listdir(wd), key=lambda x: int(x.split('.')[0])):
         file = os.path.join(wd, x)
         with open(file, 'rb') as f:
           arr_img = pickle.load(f)
@@ -38,10 +39,10 @@ class CBRI:
       if len(img.shape) == 3:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
-      kp, desc, heat = self.detector.run(img.astype('float32') / 255.)
+      kp, desc, heat = self.detector.run(img / np.float32(255))
       # self.desc = desc.T
       img_visual_words, dis = vq(desc.T, self.kmeans)
-      emm = np.zeros(256)
+      emm = np.zeros(512)
       for w in img_visual_words:
         emm[w] += 1
       

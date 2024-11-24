@@ -60,29 +60,38 @@ def visualize_result():
   print (df)    
   ch = alt.Chart(df).mark_line().encode(
         alt.X('Angle', title='Angle'),
-        alt.Y('Accuracy', title='Accuracy'),
+        alt.Y('Score', title='Accuracy'),
         color='Method:N'  # 
     ).properties(
         title='Biểu đồ sự thay đổi của Accuracy theo Góc quay'
     )
   st.altair_chart(ch, use_container_width=True)
+  st.write("""
+           - Từ biểu đồ trên, ta thấy rằng:
+                - ORB đạt độ chính xác cao nhất ở mọi góc quay. Ban đầu, với góc 0-15 độ, độ chính xác luôn giữ ở mức > 0.8. Khi góc tăng lên, độ chính xác giảm nhưng vẫn duy trì trên mức 0.4, cho thấy khả năng kháng xoay tốt.
+
+                - SIFT có hiệu suất khá nhưng thấp hơn ORB. Ở góc nhỏ (0-10 độ), độ chính xác cũng cao (~0.8), nhưng giảm nhanh hơn khi góc quay tăng. Điều này cho thấy SIFT ổn định ở góc nhỏ nhưng nhạy cảm hơn với góc quay lớn.
+
+                - SuperPoint có hiệu năng kém nhất khi thực hiện các phép quay. Độ chính xác giảm rất nhanh, gần như bằng 0 ở 45 độ. Điều này chỉ ra thuật toán này không phù hợp với các bài toán biến đổi xoay lớn.
+           """)
 visualize_result()
 
-st.write("""- Minh họa quá trình matching trên SuperPoint theo từng góc quay trên tập hình ***checkerboard***""")
-col = st.columns(3)
-col[0].image('./datasets/sythetic/keypoints_matching/spp_10.png', caption='Xoay 10, số lượng keypoints khớp chính xác 28/32', use_column_width=True)
-col[1].image('./datasets/sythetic/keypoints_matching/spp_20.png', caption='Xoay 20, số lượng keypoints khớp chính xác = 23/32', use_column_width=True)
-col[2].image('./datasets/sythetic/keypoints_matching/spp_30.png', caption='Xoay 30, số lượng keypoints khớp chính xác 16/32', use_column_width=True)
+with open('./datasets/sythetic/keypoints_matching/result_exper.pkl', 'rb') as f:
+  de = pickle.load(f)
+  
+col = st.columns([1, 3, 3, 3])
+for _, i in enumerate(["SIFT", "ORB", "SuperPoint"]):
+  col[_ + 1].write(f'***{i}***')
+for j in ["Checkerboard", "Cube", "Lines"]:
+  # st.write()
+  col = st.columns([1, 3, 3, 3])
+  col[0].write(f'***{j}***')
+  for angle in [10, 20, 30]:
+    for idx, i in enumerate(de):
+      if i['type'] == j and i['Angle'] == angle and i['Method'] == 'SIFT':
+        col[1].image(i["img"], caption=f'Góc quay {angle}, số lượng keypoints khớp chính xác {i["correct"]}/{i["total"]}', use_column_width=True)
+      if i['type'] == j and i['Angle'] == angle and i['Method'] == 'ORB':
+        col[2].image(i["img"], caption=f'Góc quay {angle}, số lượng keypoints khớp chính xác {i["correct"]}/{i["total"]}', use_column_width=True)
+      if i['type'] == j and i['Angle'] == angle and i['Method'] == 'SuperPoint':
+        col[3].image(i["img"], caption=f'Góc quay {angle}, số lượng keypoints khớp chính xác {i["correct"]}/{i["total"]}', use_column_width=True)      
 
-st.write("""- Minh họa quá trình matching trên SuperPoint theo từng góc quay trên tập hình ***multiple_polygon***""")
-col = st.columns(3)
-col[0].image('./datasets/sythetic/keypoints_matching/spp_10_1.png', caption='Xoay 10, số lượng keypoints khớp chính xác 14/22', use_column_width=True)
-col[1].image('./datasets/sythetic/keypoints_matching/spp_10_2.png', caption='Xoay 20, số lượng keypoints khớp chính xác = 13/22', use_column_width=True)
-col[2].image('./datasets/sythetic/keypoints_matching/spp_10_3.png', caption='Xoay 30, số lượng keypoints khớp chính xác 10/22', use_column_width=True)
-
-
-st.header('5. Discussion')
-st.write("""
-        - SIFT có độ chính xác giảm dần đều và ổn định ở mức cao hơn ORB và SuperPoint. Điều này cho thấy SIFT có khả năng chịu đựng tốt hơn với các biến đổi góc quay lớn.
-        - SuperPoint cho độ chính xác cao khi ở các góc quay nhỏ từ 0 -> 20 độ và giảm mạnh khi xoay ảnh các góc lớn hơn.
-         """)

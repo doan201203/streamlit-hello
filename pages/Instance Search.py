@@ -23,11 +23,11 @@ cbri = get_db_image()
 @st.fragment
 def display_db_image():
     col = st.columns(4)
-    for i in range(4):
-        col[i].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
+    for i in range(821, 825):
+        col[i-821].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
     col = st.columns(4)
     for i in range(20, 24):
-        col[i-20].image(cbri.db[i], caption='Image {}'.format(i), channels='RGB')
+        col[i-20].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
 display_db_image()
 
 st.header('2. Methods')
@@ -46,6 +46,21 @@ def display_methods():
                - $cosine = \\frac{a.b}{||a||.||b||}$
             """)
    st.image('./images/bovw.png', caption='Pipeline quá trình tìm kiếm')
+   st.write("""
+            - Các bước thực hiện:
+                - ***(1)***: Trích xuất các desciptors từ tập dữ liệu.
+                - ***(2)***: Sử dụng K-means để phân cụm các desciptors với K = 512.
+                - ***(3)***: Sau khi phân cụm các descriptors bằng K-means, ta sẽ thu được 512 cụm (centroids). Các cụm này chính là từ điển (visual vocabulary), đại diện cho các đặc trưng của toàn bộ dataset.
+                - ***(4)***: Với mỗi hình ảnh trong dataset, ta gán các descriptors của hình ảnh đó vào cụm gần nhất (dựa trên khoảng cách với centroids). Từ đó, tính histogram vector cho hình ảnh.
+                - ***(5)***: Áp dụng TF-IDF để tăng cường thông tin đặc trưng
+                - ***(6)***: Trích xuất descriptors từ Query Image
+                - ***(7)***: Sử dụng visual vocabulary từ bước ***(3)***, gán descriptors của query image vào các cụm gần nhất để tạo histogram vector.
+                - ***(8)***: Áp dụng TF-IDF cho Query Image.
+                - ***(9)***: Sử dụng ***Cosine Similarity*** để so sánh độ tương đồng giữa histogram vector của query image và từng histogram vector trong dataset.
+            """)
+   #Giai thich li do chon K = 512 dua vao eblow method
+   st.write("""- Giải thích lý do chọn K = 512 dựa vào phương pháp [Elbow](https://www.analyticsvidhya.com/blog/2021/01/in-depth-intuition-of-k-means-clustering-algorithm-in-machine-learning/)""")
+   st.image('./images/eblow_bovw.png', caption='Elbow Method', use_column_width=True)
 display_methods()
 # st.header('3. Evaluation')
 # st.header('4. Results')
@@ -65,7 +80,7 @@ def display_search():
          if submit_button:
             img = np.array(img)
             idx, conf = cbri.top_k(img, K)
-
+            print(idx)
             for i in range(K):
                st.image(cbri.db[idx[i]], caption='Cosine Similarity {}'.format(conf[i]), channels='BGR')
 display_search()

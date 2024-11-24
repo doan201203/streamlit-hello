@@ -115,8 +115,8 @@ st.markdown("""
 
 #### 1. **Recall của SIFT và ORB**
 - **ORB vượt trội hơn SIFT** ở hầu hết các loại hình, đặc biệt là:
-  - **Cube**, **Star**, **Checkboard**: ORB có Recall cao (~0.58, ~0.69, ~0.4), trong khi ORB thấp hơn đáng kể (~0.26, ~0.43, ~0.25).
-  - **Polygon**: ORB đạt gần (~0.7), trong khi ORB hầu như không có kết quả (~0.05).
+  - **Cube**, **Star**, **Checkboard**: ORB có Recall cao (~0.58, ~0.69, ~0.4), trong khi SIFT thấp hơn đáng kể (~0.26, ~0.43, ~0.25).
+  - **Polygon**: ORB đạt gần (~0.7), trong khi SIFT hầu như không có kết quả (~0.05).
 - **SIFT tốt hơn ORB** trong một vài trường hợp như:
   - **Lines** và **Stripes**: SIFT có Recall cao hơn (~0.33, ~0.27), còn ORB chỉ đạt khoảng (~0.29, ~0.07).
 - **Loại hình Multiple**: Cả hai phương pháp đều có kết quả thấp, nhưng ORB vẫn nhỉnh hơn.
