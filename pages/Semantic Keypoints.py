@@ -154,21 +154,21 @@ col3[1].image('./datasets/sythetic/results/check_2.png', caption='Kết quả c�
 col3[0].image('./datasets/sythetic/results/line_1.png', caption='Kết quả của tập hình lines với số keypoints được phát hiện = 24, precision = 0.0833, recall = 0.25', use_column_width=True)
 col3[1].image('./datasets/sythetic/results/line_2.png', caption='Kết quả của tập hình lines với số keypoints được phát hiện = 7, precision = 0.7142, recall = 0.625', use_column_width=True)
 
-st.write("""
-        - Giải thích cho lí do ***Recall*** của ORB cao hơn trên tập hình star, Cube, checkerboard là vì:
-            - ORB phát hiện được số lượng keypoints nhiều hơn so với SIFT trên tập hình này, dẫn đến việc có nhiều điểm dự đoán đúng hơn (true positives), làm tăng Recall. Tuy nhiên, do phát hiện nhiều điểm hơn, ORB cũng tạo ra nhiều điểm nhiễu (false positives) hơn, đây cũng là lí do khiến Precision giảm xuống so với SIFT trong hầu hết các tập hình.
-         """)
+# st.write("""
+#         - Giải thích cho lí do ***Recall*** của ORB cao hơn trên tập hình star, Cube, checkerboard là vì:
+#             - ORB phát hiện được số lượng keypoints nhiều hơn so với SIFT trên tập hình này, dẫn đến việc có nhiều điểm dự đoán đúng hơn (true positives), làm tăng Recall. Tuy nhiên, do phát hiện nhiều điểm hơn, ORB cũng tạo ra nhiều điểm nhiễu (false positives) hơn, đây cũng là lí do khiến Precision giảm xuống so với SIFT trong hầu hết các tập hình.
+#          """)
 
-col3 = st.columns(2)
-col3[0].image('./datasets/sythetic/results/st_1.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 15, precision = 0.2, recall = 0.75', use_column_width=True)
-col3[1].image('./datasets/sythetic/results/st_2.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 2, precision = 1., recall = 0.5', use_column_width=True)
+# col3 = st.columns(2)
+# col3[0].image('./datasets/sythetic/results/st_1.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 15, precision = 0.2, recall = 0.75', use_column_width=True)
+# col3[1].image('./datasets/sythetic/results/st_2.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 2, precision = 1., recall = 0.5', use_column_width=True)
 
-col3[0].image('./datasets/sythetic/results/st_3.png', caption='Kết quả của tập hình Cube với số keypoints được phát hiện = 8, precision = 0.5, recall = 0.57', use_column_width=True)
-col3[1].image('./datasets/sythetic/results/st_4.png', caption='Kết quả của tập hình Cube với số keypoints được phát hiện = 2, precision = 0., recall = 0.', use_column_width=True)
+# col3[0].image('./datasets/sythetic/results/st_3.png', caption='Kết quả của tập hình Cube với số keypoints được phát hiện = 8, precision = 0.5, recall = 0.57', use_column_width=True)
+# col3[1].image('./datasets/sythetic/results/st_4.png', caption='Kết quả của tập hình Cube với số keypoints được phát hiện = 2, precision = 0., recall = 0.', use_column_width=True)
 
 
-col3[0].image('./datasets/sythetic/results/st_5.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 97, precision = 0.15, recall = 0.46', use_column_width=True)
-col3[1].image('./datasets/sythetic/results/st_6.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 50, precision = 0.2, recall = 0.31', use_column_width=True)
+# col3[0].image('./datasets/sythetic/results/st_5.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 97, precision = 0.15, recall = 0.46', use_column_width=True)
+# col3[1].image('./datasets/sythetic/results/st_6.png', caption='Kết quả của tập hình checkerboard với số keypoints được phát hiện = 50, precision = 0.2, recall = 0.31', use_column_width=True)
 
 
 
