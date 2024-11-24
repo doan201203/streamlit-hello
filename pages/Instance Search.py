@@ -80,7 +80,6 @@ def display_search():
          if submit_button:
             img = np.array(img)
             idx, conf = cbri.top_k(img, K)
-            print(idx)
             for i in range(K):
                st.image(cbri.db[idx[i]], caption='Cosine Similarity {}'.format(conf[i]), channels='BGR')
 display_search()

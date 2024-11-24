@@ -26,7 +26,6 @@ class CBRI:
     def docf(self):
       wd = './datasets/coco17'
       img = []
-      print(sorted(os.listdir(wd), key=lambda x: int(x.split('.')[0])))
       for x in sorted(os.listdir(wd), key=lambda x: int(x.split('.')[0])):
         file = os.path.join(wd, x)
         with open(file, 'rb') as f:
