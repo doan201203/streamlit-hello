@@ -37,7 +37,7 @@ st.write("""
 st.image('./images/SORT/kalm_filter.png', channels='BGR', use_column_width=True)
 st.write("""
         - Uớc tính vị trị gồm 2 bước chính:
-            - ***Dự đoán (prediction)***: Tính toán trạng thái dự kiến của mục tiêu dựa trên trạng thái đã được ước lượng trước đó, cùng với mô hình vận tốc tuyến tính và các thông tin sẵn có.
+            - ***Dự đoán (prediction)***: Tính toán trạng thái dự kiến của mục tiêu dựa trên trạng thái đã được ước lượng trước đó, dựa vào các thông tin như vận tốc và vị trí.
             - ***Hiệu chỉnh (correction)***: Kết hợp trạng thái dự đoán với thông tin thực tế đo được (bounding box từ detector) để tính toán trạng thái chính xác hơn.
          """)
 st.markdown("""
@@ -46,12 +46,13 @@ Với mỗi trạng thái của đối tượng $\mathbf{x} = [u, v, s, r, \dot{
 - $(u, v)$: Tọa độ tâm $(x, y)$ bounding box của đối tượng.  
 - $s$: Diện tích của bounding box.  
 - $r$: Tỷ lệ khung hình của bounding box (giả định không thay đổi).  
-- $ \dot{u}, \dot{v}, \dot{s} $: Tốc độ thay đổi của các tham số tương ứng.  
+- $ \dot{u}, \dot{v}, \dot{s} $: lần lượt là các giá trị vận tốc tương ứng của $u, v, s$ 
 
 **Ý nghĩa:**  
 - Nếu bounding box từ **detection** được liên kết với mục tiêu đang theo dõi, bounding box này sẽ được sử dụng để cập nhật trạng thái của mục tiêu bằng **Kalman Filter**.  
 - Nếu mục tiêu không được liên kết với detection (unmatched), trạng thái của mục tiêu sẽ chỉ được dự đoán không có bước ***hiệu chỉnh***.
             """, unsafe_allow_html=True)
+st.image('./images/SORT/overview.png', caption='Quá trình dự đoán và cập nhật bộ lọc Kalman', use_column_width=True)
 st.subheader("2.3 Data Association")
 st.image('./images/SORT/hungarian.png', caption='Áp dụng thuật toán Hungarian để ghép nối các trạng thái [Nguồn](https://www.linkedin.com/pulse/object-tracking-sort-deepsort-daniel-pleus)')
 st.write("""        
