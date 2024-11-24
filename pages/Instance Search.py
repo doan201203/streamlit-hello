@@ -23,11 +23,11 @@ cbri = get_db_image()
 @st.fragment
 def display_db_image():
     col = st.columns(4)
-    for i in range(821, 825):
-        col[i-821].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
+    for i in range(221, 225):
+        col[i-221].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
     col = st.columns(4)
-    for i in range(20, 24):
-        col[i-20].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
+    for i in range(120, 124):
+        col[i-120].image(cbri.db[i], caption='Image {}'.format(i), channels='BGR')
 display_db_image()
 
 st.header('2. Methods')

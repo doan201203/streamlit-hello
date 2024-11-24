@@ -11,7 +11,6 @@ class CBRI:
     def __init__(self):
         self.detector = SuperPointFrontend(weights_path='./my_utils/superpoint_v1.pth', nms_dist=4, conf_thresh=0.015, nn_thresh=0.7)
         self.db = self.docf()
-        print(self.db.shape)
         
         with open('./my_utils/kmean.pkl', 'rb') as f:
           self.kmeans = pickle.load(f)
@@ -26,7 +25,7 @@ class CBRI:
     def docf(self):
       wd = './datasets/coco17'
       img = []
-      for x in sorted(os.listdir(wd), key=lambda x: int(x.split('.')[0])):
+      for x in sorted(os.listdir(wd), key=lambda x: int(x.split('_')[1][:-4])):
         file = os.path.join(wd, x)
         with open(file, 'rb') as f:
           arr_img = pickle.load(f)
