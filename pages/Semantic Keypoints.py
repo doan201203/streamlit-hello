@@ -7,6 +7,7 @@ from PIL import Image
 import numpy as np
 import altair as alt
 import pandas as pd
+from sympy import use
 
 st.set_page_config(page_title="Semantic Keypoints")
 st.header('1. Dataset', divider=True)
@@ -154,10 +155,35 @@ col3[1].image('./datasets/sythetic/results/check_2.png', caption='Kết quả c�
 col3[0].image('./datasets/sythetic/results/line_1.png', caption='Kết quả của tập hình lines với số keypoints được phát hiện = 24, precision = 0.0833, recall = 0.25', use_column_width=True)
 col3[1].image('./datasets/sythetic/results/line_2.png', caption='Kết quả của tập hình lines với số keypoints được phát hiện = 7, precision = 0.7142, recall = 0.625', use_column_width=True)
 
-# st.write("""
-#         - Giải thích cho lí do ***Recall*** của ORB cao hơn trên tập hình star, Cube, checkerboard là vì:
-#             - ORB phát hiện được số lượng keypoints nhiều hơn so với SIFT trên tập hình này, dẫn đến việc có nhiều điểm dự đoán đúng hơn (true positives), làm tăng Recall. Tuy nhiên, do phát hiện nhiều điểm hơn, ORB cũng tạo ra nhiều điểm nhiễu (false positives) hơn, đây cũng là lí do khiến Precision giảm xuống so với SIFT trong hầu hết các tập hình.
-#          """)
+st.write("""
+        - Giải thích cho lí do ***Recall*** của ORB cao hơn SIFT trên tập hình ***checkerboard, cube, polygon, star...*** là vì:
+          - ORB sử dụng ***FAST (Features from Accelerated Segment Test)*** để phát hiện keypoints, ý tưởng chính của thuật toán ***FAST*** là:
+         """)
+col2 = st.columns(2)
+col2[0].write(""" 
+                -
+                    - Chọn một pixel $p$ trong ảnh làm điểm trung tâm.
+                    - Xét một vòng tròn Bresenham bán kính 3 xung quanh điểm $p$ (gồm 16 pixel).
+                    - So sánh cường độ sáng của các pixel trên vòng tròn với cường độ sáng của điểm $p$. Nếu có một số lượng n pixel liên tiếp trên vòng tròn có cường độ sáng lớn hơn hoặc nhỏ hơn cường độ sáng của $p$ một ngưỡng nhất định, thì $p$ được coi là một keypoint. n thường được chọn là 9 hoặc 16 (FAST-9, FAST-16).
+              """)
+col2[1].image('./images/orb_detect.jpeg', use_column_width=True)
+col2[1].image('./images/orb_example_1.png', caption='Hình (1)', use_column_width=True)
+
+st.write("""
+            - Đối với ***SIFT*** các keypoints được phát hiện ở những điểm cực trị trong không gian tỷ lệ (scale-space) được xây dựng từ Difference of Gaussian (DoG).
+         """)
+
+st.image('./images/sift_detect.png', use_column_width=True, caption='Hình (2) Minh họa 2 octave đầu tiên của thuật toán SIFT')
+
+st.image('./images/semantic_result_3.png', use_column_width=True, caption='Hình (3) Minh họa các kết quả trên tập hình checkerboard')
+st.write("""
+        - Quan sát hình [2, 3.b] có thể thấy các giá trị cực trị của DoG phân bố ở các khu vực có độ tương phản cao ví dụ như ở trung tâm của các hình vuông trên tập ảnh ***checkerboard***
+        - Đối với ***ORB*** các keypoint được phát hiện nằm ở các góc của các ô vuông, bởi vì đó là những vị trí có sự thay đổi đột ngột về cường độ sáng (từ trắng sang đen hoặc ngược lại). Các vùng đồng nhất (toàn trắng hoặc toàn đen) không có keypoint, vì không có sự thay đổi đáng kể về cường độ sáng giữa điểm trung tâm và các điểm lân cận. Các điểm này khớp với ***Ground Truth*** [Hình 3.a] dẫn đến việc ***ORB*** có recall tốt hơn ***SIFT***. 
+        - Tuy nhiên precision của ***ORB*** lại thấp hơn ***SIFT*** trên các tập hình ***lines, star*** là vì:
+            - Trên các tập hình này chủ yếu là các đường thẳng. 
+            - ORB phát hiện rất nhiều keypoint dọc theo đường thẳng. Điều này là do thuật toán FAST (Features from Accelerated Segment Test), thành phần cốt lõi của ORB, rất nhạy cảm với sự thay đổi độ sáng. Dọc theo cạnh của đường thẳng, cường độ sáng thay đổi đáng kể so với nền, dẫn đến việc FAST phát hiện nhiều keypoint không khớp với ground truth.
+         """)
+st.image('./images/semantic_result_1.png', use_column_width=True, caption='Hình (4) Minh họa kết quả của ORB trên tập hình lines')
 
 # col3 = st.columns(2)
 # col3[0].image('./datasets/sythetic/results/st_1.png', caption='Kết quả của tập hình star với số keypoints được phát hiện = 15, precision = 0.2, recall = 0.75', use_column_width=True)
