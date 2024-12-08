@@ -159,6 +159,7 @@ st.write("""
         - Giải thích cho lí do ***Recall*** của ORB cao hơn SIFT trên tập hình ***checkerboard, cube, polygon, star...*** là vì:
           - ORB sử dụng ***FAST (Features from Accelerated Segment Test)*** để phát hiện keypoints, ý tưởng chính của thuật toán ***FAST*** là:
          """)
+
 col2 = st.columns(2)
 col2[0].write(""" 
                 -
