@@ -14,3 +14,5 @@ google-cloud-storage
 streamlit-sync
 torch==2.4
 faiss-cpu
+tensorflow
+scikit-image
