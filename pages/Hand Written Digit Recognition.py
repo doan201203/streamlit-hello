@@ -18,7 +18,6 @@ def p1():
    st.write("""
             -   Sử dụng tập dữ liệu MNIST Hình ảnh chứa 70.000 hình ảnh chữ số viết tay từ 0 đến 9.
             -   Mỗi hình ảnh có kích thước 28x28 pixel. 
-            -   Tập dữ liệu được chia thành 60.000 hình ảnh cho quá trình training và 10.000 quá trình testing.
             """)
    st.image('./miscs/hand_writing/example.png', use_column_width=True, caption='Một số hình ảnh trong tập dữ liệu')
 
@@ -26,6 +25,9 @@ def p2():
    st.header("2. Phương Pháp")
    st.image('./images/kien_truc_hand_writing.png', use_column_width=True, caption='Kiến trúc mạng sử dụng trong bài toán')
    st.markdown("""
+        - Tập dữ liệu được chia thành 60.000 hình ảnh cho quá trình training và 10.000 quá trình testing.
+        - Số lượng epoch: 10
+        - Batch size: 128
     """)
    st.image('./miscs/hand_writing/results.png', use_column_width=True, caption='Biểu đồ accuracy, loss sau khi training')
 def predict_with_mask(model, mask):
