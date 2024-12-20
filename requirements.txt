@@ -16,3 +16,4 @@ torch
 faiss-cpu
 tensorflow
 scikit-image
+PyQt6
