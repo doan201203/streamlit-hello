@@ -23,3 +23,7 @@ st.write("""
                 - Trong quá trình huấn luyện, KCF xây dựng một bộ lọc bằng cách tối ưu hóa hàm mất mát dựa trên dữ liệu của đối tượng cần theo dõi.
                 - Khi theo dõi, bộ lọc được sử dụng để tìm vị trí đối tượng mới nhất trong khung hình kế tiếp bằng cách tìm điểm tương quan cao nhất.
          """)
+st.header("3. Ví dụ")
+with open('./datasets/SOT/output.mp4', 'rb') as f:
+    videob = f.read()
+st.video(videob)

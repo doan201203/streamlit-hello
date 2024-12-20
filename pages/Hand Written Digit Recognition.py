@@ -1,16 +1,19 @@
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
-import tensorflow as tf
-from tensorflow import keras
 from my_utils.free_draw_2_mask import Free2Mask
 import cv2
 from skimage import measure
 import numpy as np
+from miscs.hand_writing.net_2 import Net
+import torch
 
 st.set_page_config(layout="wide")
 @st.cache_resource(show_spinner=False)
 def load_model():
-    model = keras.models.load_model('./miscs/hand_writing/mnist_model.h5')
+    model = Net()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.load_state_dict(torch.load('./miscs/hand_writing/model.pth', weights_only=True, map_location=device))
+    model.eval() 
     return model
 
 def p1():
@@ -24,19 +27,30 @@ def p1():
 def p2():
    st.header("2. Phương Pháp")
    st.image('./images/kien_truc_hand_writing.png', use_column_width=True, caption='Kiến trúc mạng sử dụng trong bài toán')
+   
    st.markdown("""
-        - Tập dữ liệu được chia thành 60.000 hình ảnh cho quá trình training và 10.000 quá trình testing.
-        - Số lượng epoch: 10
-        - Batch size: 128
+        
+        - 2.1 Kiến trúc được sử dụng gồm:
+            - 2 lớp Convolutional (3, 3) với số lượng filter lần lượt là 8 và 16.
+            - 1 lớp Maxpooling với kernel size là 2x2.
+            - 2 lớp Fully Connected với số lượng neuron lần lượt là 64 và 10.
+            - Có cấu trúc đơn giản, không quá sâu, phù hợp cho bài toán phân loại ảnh nhỏ như MNIST.
+        - 2.2 Quá trình training:
+            - Tập dữ liệu được chia thành 60.000 hình ảnh cho quá trình training và 10.000 quá trình testing.
+            - Số lượng epoch: 10
+            - Batch size: 128
+            - Thuật toán tối ưu: Adam
+            - Loss function: CrossEntropyLoss
     """)
    st.image('./miscs/hand_writing/results.png', use_column_width=True, caption='Biểu đồ accuracy, loss sau khi training')
 def predict_with_mask(model, mask):
-    
+    model.eval()
     mask = cv2.resize(mask, (28, 28))
     # st.image(mask, use_column_width=True)
     mask = mask / 255.0
-    mask = mask.reshape(1, 28, 28, 1)
-    return model.predict(mask)
+    mask = mask.reshape(1, 1, 28, 28)
+    print(torch.tensor(mask, dtype=torch.float32).shape)
+    return torch.softmax(model(torch.tensor(mask, dtype=torch.float32)), dim=1).detach().numpy() * 100
 
 def preprocess_mask(model, mask):
     #noise removal with erosion
@@ -72,6 +86,7 @@ def preprocess_mask(model, mask):
         pad = int(crop.shape[0] * 0.25)
         crop = np.pad(crop, ((pad, pad), (pad, pad)), 'constant', constant_values=(0, 0))
         
+        print(np.array2string(predict_with_mask(model, crop), formatter={'float_kind': lambda x: "%.8f" % x}))
         a.append(np.argmax(predict_with_mask(model, crop)))
     return a
 
