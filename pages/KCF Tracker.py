@@ -26,4 +26,4 @@ st.write("""
 st.header("3. Ví dụ")
 with open('./datasets/SOT/output.mp4', 'rb') as f:
     videob = f.read()
-st.video(videob)
+st.video(videob, autoplay=True, muted=True)

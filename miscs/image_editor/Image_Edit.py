@@ -21,7 +21,7 @@ class ImageProcessor:
          return self
         
     def change_colorspace(self, target_space):
-      if target_space == 'L':  # Grayscale
+      if target_space == 'Gray':  # Grayscale
         self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
       elif target_space == 'HSV':
             self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
