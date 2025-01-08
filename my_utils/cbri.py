@@ -39,6 +39,7 @@ class CBRI:
         
       kp, desc, heat = self.detector.run(img / np.float32(255))
       # self.desc = desc.T
+      print('Descriptors shape:', desc.shape)
       img_visual_words, dis = vq(desc.T, self.kmeans)
       emm = np.zeros(512)
       for w in img_visual_words:
