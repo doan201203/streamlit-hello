@@ -21,8 +21,8 @@ def load_data():
     # with open('./datasets/mnist/data_mnist.pkl', 'rb') as f:
         # X, y, X_scaled, X_pca = pickle.load(f)
     mnist = fetch_openml('mnist_784', version=1)
-    X = np.array(mnist.data)
-    y = np.array(mnist.target, dtype=int)
+    X = np.array(mnist.data)[:35000]
+    y = np.array(mnist.target, dtype=int)[:35000]
     return X, y
 
 def initialize_centroids(X, k):
