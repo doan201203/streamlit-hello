@@ -17,3 +17,4 @@ faiss-cpu
 tensorflow
 scikit-image
 PyQt6
+threadpoolctl>=3.0.0
